@@ -72,11 +72,19 @@ export async function apiRequest<T>(
     }
   }
 
-  const res = await fetch(`${API_BASE}${endpoint}`, {
-    method,
-    headers,
-    body: requestBody,
-  });
+  let res: Response;
+  try {
+    res = await fetch(`${API_BASE}${endpoint}`, {
+      method,
+      headers,
+      body: requestBody,
+    });
+  } catch (networkError) {
+    throw new ApiError(
+      'Unable to reach the server. It may be starting up — please try again in a moment.',
+      0
+    );
+  }
 
   const data = await parseResponse(res);
 
