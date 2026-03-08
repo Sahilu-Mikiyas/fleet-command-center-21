@@ -108,7 +108,7 @@ export default function DriversPage() {
               <div>
                 <label className="text-sm font-medium mb-1.5 block">Full Name</label>
                 <Input {...register('fullName')} className="h-11" />
-                {errors.fullName && <p className="text-xs text-destructive mt-1">{errors.fullName.message}</p>}
+                {errors.fullName && <p className="text-xs text-destructive mt-1">{String(errors.fullName.message)}</p>}
               </div>
               <div className="grid grid-cols-2 gap-3">
                 <div>

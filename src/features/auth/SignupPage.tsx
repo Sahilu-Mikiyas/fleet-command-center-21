@@ -47,10 +47,14 @@ export default function SignupPage() {
     resolver: zodResolver(signupSchema),
   });
 
-  const onSubmit = async (data: SignupForm) => {
+  const onSubmit = async (data: any) => {
     try {
       await signup({
-        ...data,
+        fullName: data.fullName,
+        phoneNumber: data.phoneNumber,
+        email: data.email,
+        password: data.password,
+        passwordConfirm: data.passwordConfirm,
         role: data.role as UserRole,
         photo: photo || undefined,
       });

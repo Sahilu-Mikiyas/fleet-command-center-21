@@ -47,12 +47,12 @@ export default function ResetPasswordPage() {
                   <div>
                     <label className="text-sm font-medium mb-1.5 block">New Password</label>
                     <Input {...register('password')} type="password" placeholder="••••••••" className="h-12" />
-                    {errors.password && <p className="text-xs text-destructive mt-1">{errors.password.message}</p>}
+                    {errors.password && <p className="text-xs text-destructive mt-1">{String(errors.password.message)}</p>}
                   </div>
                   <div>
                     <label className="text-sm font-medium mb-1.5 block">Confirm Password</label>
                     <Input {...register('passwordConfirm')} type="password" placeholder="••••••••" className="h-12" />
-                    {errors.passwordConfirm && <p className="text-xs text-destructive mt-1">{errors.passwordConfirm.message}</p>}
+                    {errors.passwordConfirm && <p className="text-xs text-destructive mt-1">{String(errors.passwordConfirm.message)}</p>}
                   </div>
                   <Button type="submit" disabled={isSubmitting} className="w-full h-12 gradient-primary text-primary-foreground font-semibold">
                     {isSubmitting ? <Loader2 className="h-5 w-5 animate-spin" /> : 'Reset Password'}

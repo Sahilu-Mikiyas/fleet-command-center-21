@@ -78,18 +78,18 @@ export default function SettingsPage() {
           <div>
             <label className="text-sm font-medium mb-1.5 block">Current Password</label>
             <Input {...register('currentPassword')} type="password" className="h-11" />
-            {errors.currentPassword && <p className="text-xs text-destructive mt-1">{errors.currentPassword.message}</p>}
+            {errors.currentPassword && <p className="text-xs text-destructive mt-1">{String(errors.currentPassword.message)}</p>}
           </div>
           <div className="grid grid-cols-2 gap-3">
             <div>
               <label className="text-sm font-medium mb-1.5 block">New Password</label>
               <Input {...register('password')} type="password" className="h-11" />
-              {errors.password && <p className="text-xs text-destructive mt-1">{errors.password.message}</p>}
+              {errors.password && <p className="text-xs text-destructive mt-1">{String(errors.password.message)}</p>}
             </div>
             <div>
               <label className="text-sm font-medium mb-1.5 block">Confirm</label>
               <Input {...register('passwordConfirm')} type="password" className="h-11" />
-              {errors.passwordConfirm && <p className="text-xs text-destructive mt-1">{errors.passwordConfirm.message}</p>}
+              {errors.passwordConfirm && <p className="text-xs text-destructive mt-1">{String(errors.passwordConfirm.message)}</p>}
             </div>
           </div>
           <Button type="submit" disabled={isSubmitting} className="gradient-primary text-primary-foreground">

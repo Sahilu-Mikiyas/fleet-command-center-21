@@ -86,7 +86,7 @@ export default function VehiclesPage() {
               <div>
                 <label className="text-sm font-medium mb-1.5 block">Plate Number</label>
                 <Input {...register('plateNumber')} className="h-11" placeholder="ABC-1234" />
-                {errors.plateNumber && <p className="text-xs text-destructive mt-1">{errors.plateNumber.message}</p>}
+                {errors.plateNumber && <p className="text-xs text-destructive mt-1">{String(errors.plateNumber.message)}</p>}
               </div>
               <div className="grid grid-cols-2 gap-3">
                 <div>

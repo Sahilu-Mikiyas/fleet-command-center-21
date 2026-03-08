@@ -46,7 +46,7 @@ export default function ForgotPasswordPage() {
                 <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
                   <div>
                     <Input {...register('email')} type="email" placeholder="name@company.com" className="h-12" />
-                    {errors.email && <p className="text-xs text-destructive mt-1">{errors.email.message}</p>}
+                    {errors.email && <p className="text-xs text-destructive mt-1">{String(errors.email.message)}</p>}
                   </div>
                   <Button type="submit" disabled={isSubmitting} className="w-full h-12 gradient-primary text-primary-foreground font-semibold">
                     {isSubmitting ? <Loader2 className="h-5 w-5 animate-spin" /> : 'Send Reset Link'}

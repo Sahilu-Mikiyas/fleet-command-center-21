@@ -26,7 +26,7 @@ export default function LoginPage() {
     resolver: zodResolver(loginSchema),
   });
 
-  const onSubmit = async (data: LoginForm) => {
+  const onSubmit = async (data: { email: string; password: string }) => {
     try {
       await login(data);
       toast.success('Welcome back!');
