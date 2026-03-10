@@ -55,7 +55,7 @@ export const authApi = {
   },
 
   async checkAuth() {
-    const res = await apiRequest<{ status: string; data: { user: User } }>('/users/check-auth');
-    return res.data.user;
+    const res = await apiRequest<{ status: string; user?: User; data?: { user?: User } }>('/users/check-auth');
+    return res.user ?? res.data?.user ?? null;
   },
 };

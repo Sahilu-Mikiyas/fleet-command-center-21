@@ -11,7 +11,7 @@ import { useAuth } from '@/context/AuthContext';
 import { toast } from 'sonner';
 
 const loginSchema = z.object({
-  email: z.string().min(1, 'Email is required'),
+  identifier: z.string().min(1, 'Email or phone is required'),
   password: z.string().min(1, 'Password is required'),
 });
 
@@ -26,9 +26,9 @@ export default function LoginPage() {
     resolver: zodResolver(loginSchema),
   });
 
-  const onSubmit = async (data: { email: string; password: string }) => {
+  const onSubmit = async (data: LoginForm) => {
     try {
-      await login(data);
+      await login({ identifier: data.identifier, password: data.password });
       toast.success('Welcome back!');
       navigate('/dashboard');
     } catch (err: any) {
@@ -89,18 +89,17 @@ export default function LoginPage() {
           </div>
 
           <h1 className="text-3xl font-bold font-display text-foreground mb-2">Welcome back</h1>
-          <p className="text-muted-foreground mb-8">Sign in to your account to continue</p>
+          <p className="text-muted-foreground mb-8">Sign in with your email or phone number to continue</p>
 
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
             <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }}>
-              <label className="text-sm font-medium text-foreground mb-1.5 block">Email</label>
+              <label className="text-sm font-medium text-foreground mb-1.5 block">Email or Phone</label>
               <Input
-                {...register('email')}
-                type="email"
-                placeholder="name@company.com"
+                {...register('identifier')}
+                placeholder="name@company.com or +2519..."
                 className="h-12"
               />
-              {errors.email && <p className="text-xs text-destructive mt-1">{errors.email.message}</p>}
+              {errors.identifier && <p className="text-xs text-destructive mt-1">{errors.identifier.message}</p>}
             </motion.div>
 
             <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }}>

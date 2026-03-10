@@ -1,73 +1,41 @@
-# Welcome to your Lovable project
+# FleetCommand Logistics Dashboard
 
-## Project info
+This repository powers the FleetCommand logistics operations dashboard — a premium interface for managing companies, fleets, drivers, and runway-ready placeholder modules for contracts, orders, tracking, and payments.
 
-**URL**: https://lovable.dev/projects/REPLACE_WITH_PROJECT_ID
+## Getting started
 
-## How can I edit this code?
+### Requirements
+- Node.js 18+ (or newer with npm 9+)
+- `npm` / `pnpm`
 
-There are several ways of editing your application.
-
-**Use Lovable**
-
-Simply visit the [Lovable Project](https://lovable.dev/projects/REPLACE_WITH_PROJECT_ID) and start prompting.
-
-Changes made via Lovable will be committed automatically to this repo.
-
-**Use your preferred IDE**
-
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
-
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
-
-Follow these steps:
-
+### Quick start
 ```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
+# Install dependencies
+npm install
 
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
-
-# Step 3: Install the necessary dependencies.
-npm i
-
-# Step 4: Start the development server with auto-reloading and an instant preview.
+# Run in development mode (HMR enabled)
 npm run dev
+
+# Build for production
+npm run build
+
+# Run tests / lint (if configured)
+npm run test
 ```
 
-**Edit a file directly in GitHub**
+## Project layout
+- `src/` — React pages, features, shared components, and UI primitives
+- `public/` — favicons, the placeholder illustration, and static assets
+- `vite.config.ts` — Vite config + aliases
+- `package.json` — scripts and dependency declarations
 
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
+## Deployment
+Build with `npm run build` and deploy the `dist/` folder to any static host (Vercel, Netlify, AWS Amplify, etc.).
 
-**Use GitHub Codespaces**
+## Integrations
+- The frontend talks to `https://fleet-management-kzif.onrender.com/api/v1/...`
+- Add the API token to localStorage under `fleet_token` before hitting protected routes if needed
 
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
-
-## What technologies are used for this project?
-
-This project is built with:
-
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
-
-## How can I deploy this project?
-
-Simply open [Lovable](https://lovable.dev/projects/REPLACE_WITH_PROJECT_ID) and click on Share -> Publish.
-
-## Can I connect a custom domain to my Lovable project?
-
-Yes, you can!
-
-To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
-
-Read more here: [Setting up a custom domain](https://docs.lovable.dev/features/custom-domain#custom-domain)
+## Need to update metadata or assets?
+- `index.html` controls the document title / OG metadata
+- `public/placeholder.svg` is the default preview illustration and can be swapped with your own.

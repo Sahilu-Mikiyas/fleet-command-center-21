@@ -22,7 +22,7 @@ const companySchema = z.object({
   phoneNumber: z.string().min(5),
   website: z.string().optional(),
   description: z.string().optional(),
-  businessLicense: z.string().optional(),
+  businessLicense: z.string().min(1, 'Business license is required'),
   address: z.string().optional(),
 });
 
@@ -147,6 +147,7 @@ export default function CompanyPage() {
             <div>
               <label className="text-sm font-medium mb-1.5 block">Business License</label>
               <Input {...register('businessLicense')} className="h-11" />
+              {errors.businessLicense && <p className="text-xs text-destructive mt-1">{String(errors.businessLicense.message)}</p>}
             </div>
             <div>
               <label className="text-sm font-medium mb-1.5 block">Description</label>
