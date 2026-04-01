@@ -7,6 +7,7 @@ export interface User {
   status: UserStatus;
   active: boolean;
   companyId?: string;
+  isApproved?: boolean; // Added for roles requiring approval
   isAvailable?: boolean;
   photo?: string;
   createdAt: string;

@@ -1,7 +1,8 @@
-import { useEffect, useReducer, useState } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { authApi } from "@/services/api";
-import { authReducer, initialAuthState } from "@/state/authReducer";
+import { authApi } from "@/services/api/auth";
+import { useAuth } from "@/context/AuthContext";
+
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -10,86 +11,60 @@ import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 
 const Auth = () => {
-  const [state, dispatch] = useReducer(authReducer, initialAuthState);
+  const { user, userRole, isLoading: authLoading, login, signup } = useAuth();
   const [email, setEmail] = useState(""),
     [password, setPassword] = useState(""),
     [fullName, setFullName] = useState(""),
     [company, setCompany] = useState(""),
     [license, setLicense] = useState("");
   const navigate = useNavigate();
-  const { loading, error, mode, role } = state;
+  const [mode, setMode] = useState<"login" | "signup">("login");
+  const [role, setRole] = useState<"passenger" | "operator">("passenger");
+  const [error, setError] = useState<string | undefined>(undefined);
 
   useEffect(() => {
-    (async () => {
-      const { data } = await authApi.getSession();
-      if (data.session) {
-        await handleRoleRoute(data.session.user.id);
-      }
-    })();
-  }, []);
+    if (user && userRole) {
+      handleRoleRedirect(user, userRole);
+    }
+  }, [user, userRole]);
 
   useEffect(() => {
     if (error) {
       toast.error(error);
+      setError(undefined);
     }
   }, [error]);
 
-  const handleRoleRoute = async (userId: string) => {
-    const { data, error } = await supabase
-      .from("user_roles")
-      .select("role")
-      .eq("user_id", userId)
-      .order("created_at", { ascending: false })
-      .limit(1)
-      .single();
-    if (error || !data?.role) {
-      dispatch({ type: "FAIL", error: "Unable to resolve role" });
-      return;
+  const handleRoleRedirect = (currentUser: typeof user, currentRole: typeof userRole) => {
+    if (!currentUser || !currentRole) return;
+
+    if (currentRole === 'OPERATOR' && !currentUser.isApproved) {
+      navigate('/processing');
+    } else if (currentRole === 'SUPER_ADMIN') {
+      navigate('/admin'); // Assuming an admin dashboard route
+    } else {
+      navigate('/dashboard');
     }
-    if (data.role === "operator") {
-      const { data: op } = await supabase
-        .from("operators")
-        .select("is_approved")
-        .eq("user_id", userId)
-        .single();
-      if (!op?.is_approved) {
-        toast.error("Operator pending approval");
-        return;
-      }
-      navigate("/operator");
-      return;
-    }
-    if (data.role === "admin") {
-      navigate("/admin");
-      return;
-    }
-    navigate("/dashboard");
   };
 
   const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
-    dispatch({ type: "START" });
+    setError(undefined);
     try {
       if (mode === "login") {
-        const { data, error } = await authApi.login({ email, password });
-        if (error || !data.user) throw error ?? new Error("Login failed");
-        dispatch({ type: "SUCCESS", user: { id: data.user.id, email: data.user.email! } });
-        await handleRoleRoute(data.user.id);
+        await login({ email, password });
       } else {
-        const { data, error } = await authApi.signup({
+        await signup({
           email,
           password,
           fullName,
           companyName: company,
           licenseNumber: license,
-          userRole: role,
+          userRole: role === "passenger" ? "SHIPPER" : "OPERATOR", // Map to actual UserRole enum
         });
-        if (error || !data.user) throw error ?? new Error("Signup failed");
-        dispatch({ type: "SUCCESS", user: { id: data.user.id, email: data.user.email! } });
-        await handleRoleRoute(data.user.id);
       }
     } catch (err: any) {
-      dispatch({ type: "FAIL", error: err.message || "Authentication failed" });
+      setError(err.message || "Authentication failed");
     }
   };
 
@@ -103,14 +78,14 @@ const Auth = () => {
           <div className="flex gap-2 text-sm text-muted-foreground">
             <button
               className={mode === "login" ? "text-teal-400 font-semibold" : ""}
-              onClick={() => dispatch({ type: "SET_MODE", mode: "login" })}
+              onClick={() => setMode("login")}
               type="button"
             >
               Login
             </button>
             <button
               className={mode === "signup" ? "text-teal-400 font-semibold" : ""}
-              onClick={() => dispatch({ type: "SET_MODE", mode: "signup" })}
+              onClick={() => setMode("signup")}
               type="button"
             >
               Sign Up
@@ -152,7 +127,7 @@ const Auth = () => {
                     <input
                       type="radio"
                       checked={role === "passenger"}
-                      onChange={() => dispatch({ type: "SET_ROLE", role: "passenger" })}
+                      onChange={() => setRole("passenger")}
                     />
                     Passenger
                   </label>
@@ -160,7 +135,7 @@ const Auth = () => {
                     <input
                       type="radio"
                       checked={role === "operator"}
-                      onChange={() => dispatch({ type: "SET_ROLE", role: "operator" })}
+                      onChange={() => setRole("operator")}
                     />
                     Operator
                   </label>
@@ -179,8 +154,8 @@ const Auth = () => {
                 )}
               </>
             )}
-            <Button type="submit" className="w-full" disabled={loading}>
-              {loading ? "Processing..." : mode === "login" ? "Sign in" : "Create account"}
+                <Button type="submit" className="w-full" disabled={authLoading}>
+              {authLoading ? "Processing..." : mode === "login" ? "Sign in" : "Create account"}
             </Button>
             {error && <p className="text-xs text-destructive">{error}</p>}
           </form>

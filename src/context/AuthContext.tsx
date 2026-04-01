@@ -1,10 +1,11 @@
 import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
 import { authApi } from '@/services/api/auth';
 import { clearToken } from '@/services/api/client';
-import type { User, LoginCredentials, SignupData } from '@/types';
+import type { User, LoginCredentials, SignupData, UserRole } from '@/types';
 
 interface AuthContextType {
   user: User | null;
+  userRole: UserRole | null;
   isLoading: boolean;
   isAuthenticated: boolean;
   login: (credentials: LoginCredentials) => Promise<void>;
@@ -17,6 +18,7 @@ const AuthContext = createContext<AuthContextType | null>(null);
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
+  const [userRole, setUserRole] = useState<UserRole | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
   const refreshUser = useCallback(async () => {
@@ -24,13 +26,16 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       const token = localStorage.getItem('fleet_token');
       if (!token) {
         setUser(null);
+        setUserRole(null);
         setIsLoading(false);
         return;
       }
       const u = await authApi.checkAuth();
       setUser(u);
+      setUserRole(u.role);
     } catch {
       setUser(null);
+    setUserRole(null);
       clearToken();
     } finally {
       setIsLoading(false);
@@ -44,22 +49,26 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const login = async (credentials: LoginCredentials) => {
     const res = await authApi.login(credentials);
     setUser(res.data.user);
+    setUserRole(res.data.user.role);
   };
 
   const signup = async (data: SignupData) => {
     const res = await authApi.signup(data);
     setUser(res.data.user);
+    setUserRole(res.data.user.role);
   };
 
   const logout = async () => {
     await authApi.logout();
     setUser(null);
+    setUserRole(null);
   };
 
   return (
     <AuthContext.Provider
       value={{
         user,
+        userRole,
         isLoading,
         isAuthenticated: !!user,
         login,

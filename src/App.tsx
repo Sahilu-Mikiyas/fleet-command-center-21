@@ -12,6 +12,7 @@ import LoginPage from "@/features/auth/LoginPage";
 import SignupPage from "@/features/auth/SignupPage";
 import ForgotPasswordPage from "@/features/auth/ForgotPasswordPage";
 import ResetPasswordPage from "@/features/auth/ResetPasswordPage";
+import ProcessingPage from "@/features/auth/ProcessingPage";
 
 // Main pages
 import DashboardPage from "@/features/dashboard/DashboardPage";
@@ -47,6 +48,7 @@ const App = () => (
             <Route path="/signup" element={<SignupPage />} />
             <Route path="/forgot-password" element={<ForgotPasswordPage />} />
             <Route path="/reset-password/:token" element={<ResetPasswordPage />} />
+            <Route path="/processing" element={<ProcessingPage />} />
 
             {/* Protected routes */}
             <Route
