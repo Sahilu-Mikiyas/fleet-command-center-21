@@ -2,128 +2,127 @@ import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/context/AuthContext';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Loader2 } from 'lucide-react';
-import { supabase } from '@/integrations/supabase/client';
+import { Loader2, CheckCircle2, Clock, AlertCircle, Mail } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { motion } from 'framer-motion';
 
 export default function ProcessingPage() {
-  const { user, isAuthenticated } = useAuth();
+  const { user, isAuthenticated, refreshUser } = useAuth();
   const navigate = useNavigate();
-  const [approvalStatus, setApprovalStatus] = useState<'pending' | 'approved' | 'rejected' | 'unknown'>('unknown');
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const checkApprovalStatus = async () => {
-      if (!isAuthenticated || !user?.id) {
-        navigate('/login');
-        return;
-      }
+    if (!isAuthenticated) {
+      navigate('/login');
+      return;
+    }
 
-      // Assuming 'operator' is the role that requires approval
-      // This logic might need to be refined based on actual backend implementation
-      if (user.role === 'OPERATOR') { // Assuming user.role is available from AuthContext
-        const { data, error } = await supabase
-          .from('operators') // Assuming a table 'operators' stores approval status
-          .select('is_approved')
-          .eq('user_id', user.id)
-          .single();
+    // If user is not an OPERATOR, they shouldn't be here
+    if (user && user.role !== 'OPERATOR') {
+      navigate('/dashboard');
+      return;
+    }
 
-        if (error) {
-          console.error('Error fetching operator approval status:', error);
-          setApprovalStatus('unknown');
-        } else if (data?.is_approved === true) {
-          setApprovalStatus('approved');
-        } else if (data?.is_approved === false) {
-          setApprovalStatus('rejected'); // Assuming a 'false' status means rejected
-        } else {
-          setApprovalStatus('pending');
-        }
-      } else {
-        // For other roles, they are considered approved by default or redirected immediately
-        setApprovalStatus('approved');
-      }
-      setLoading(false);
-    };
+    setLoading(false);
 
-    checkApprovalStatus();
-
-    // Set up a polling mechanism to check status periodically if pending
+    // Set up a polling mechanism to refresh user data periodically
     const interval = setInterval(() => {
-      if (approvalStatus === 'pending') {
-        checkApprovalStatus();
-      }
-    }, 30000); // Poll every 30 seconds
+      refreshUser();
+    }, 10000); // Poll every 10 seconds
 
     return () => clearInterval(interval);
-  }, [isAuthenticated, user, navigate, approvalStatus]);
+  }, [isAuthenticated, user, navigate, refreshUser]);
 
-  useEffect(() => {
-    if (!loading) {
-      if (approvalStatus === 'approved') {
-        // Redirect to the appropriate dashboard based on user.role
-        // This logic will be further refined in a later phase
-        navigate('/dashboard'); 
-      } else if (approvalStatus === 'rejected') {
-        // Maybe a specific rejected page or message
-      }
-    }
-  }, [loading, approvalStatus, navigate]);
-
-  if (loading) {
+  if (loading || !user) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-slate-950 via-slate-900 to-black p-6">
-        <Card className="w-full max-w-md text-center">
-          <CardHeader>
-            <CardTitle className="text-2xl">Checking your application status...</CardTitle>
-          </CardHeader>
-          <CardContent className="flex flex-col items-center justify-center space-y-4">
-            <Loader2 className="h-10 w-10 animate-spin text-primary" />
-            <p className="text-muted-foreground">Please wait a moment.</p>
-          </CardContent>
-        </Card>
+      <div className="flex min-h-screen items-center justify-center bg-background p-6">
+        <Loader2 className="h-10 w-10 animate-spin text-primary" />
       </div>
     );
   }
 
+  const isApproved = user.isApproved;
+
   return (
-    <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-slate-950 via-slate-900 to-black p-6">
-      <Card className="w-full max-w-md text-center">
-        <CardHeader>
-          <CardTitle className="text-2xl">
-            {approvalStatus === 'pending' && 'Application Under Review'}
-            {approvalStatus === 'approved' && 'Application Successful!'}
-            {approvalStatus === 'rejected' && 'Application Status'}
-            {approvalStatus === 'unknown' && 'Error'}
-          </CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          {approvalStatus === 'pending' && (
-            <>
-              <p className="text-muted-foreground">Your application is currently being processed. This may take up to 48 hours.</p>
-              <p className="text-muted-foreground">You will receive an email notification once your status has been updated.</p>
-              <p className="text-muted-foreground">Please check back later.</p>
-            </>
-          )}
-          {approvalStatus === 'approved' && (
-            <>
-              <p className="text-green-500 font-semibold">Congratulations! Your application has been successfully approved.</p>
-              <p className="text-muted-foreground">Please confirm your account using the email you signed up with to proceed to your dashboard.</p>
-              <button onClick={() => navigate('/dashboard')} className="mt-4 px-4 py-2 bg-primary text-primary-foreground rounded-md">Go to Dashboard</button>
-            </>
-          )}
-          {approvalStatus === 'rejected' && (
-            <>
-              <p className="text-red-500 font-semibold">Unfortunately, your application could not be approved at this time.</p>
-              <p className="text-muted-foreground">Please contact support for more information or to appeal this decision.</p>
-            </>
-          )}
-          {approvalStatus === 'unknown' && (
-            <>
-              <p className="text-red-500 font-semibold">An unexpected error occurred while checking your application status.</p>
-              <p className="text-muted-foreground">Please try again later or contact support.</p>
-            </>
-          )}
-        </CardContent>
-      </Card>
+    <div className="flex min-h-screen items-center justify-center bg-background p-6">
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5 }}
+        className="w-full max-w-md"
+      >
+        <Card className="border-none shadow-2xl bg-card/50 backdrop-blur-xl">
+          <CardHeader className="text-center pb-2">
+            <div className="flex justify-center mb-4">
+              {isApproved ? (
+                <div className="h-20 w-20 rounded-full bg-success/10 flex items-center justify-center">
+                  <CheckCircle2 className="h-10 w-10 text-success" />
+                </div>
+              ) : (
+                <div className="h-20 w-20 rounded-full bg-primary/10 flex items-center justify-center">
+                  <Clock className="h-10 w-10 text-primary animate-pulse" />
+                </div>
+              )}
+            </div>
+            <CardTitle className="text-3xl font-bold font-display">
+              {isApproved ? 'Application Successful!' : 'Application Under Review'}
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-6 text-center">
+            {!isApproved ? (
+              <>
+                <div className="space-y-3">
+                  <p className="text-foreground font-medium">
+                    Your application is currently being processed.
+                  </p>
+                  <p className="text-muted-foreground text-sm leading-relaxed">
+                    This may take up to <span className="text-foreground font-semibold">48 hours</span>. 
+                    Our team is reviewing your credentials to ensure the highest quality of service.
+                  </p>
+                </div>
+                
+                <div className="bg-muted/50 rounded-xl p-4 flex items-start gap-3 text-left">
+                  <Mail className="h-5 w-5 text-primary shrink-0 mt-0.5" />
+                  <p className="text-xs text-muted-foreground">
+                    You will receive an email notification at <span className="text-foreground font-medium">{user.email}</span> once your status has been updated.
+                  </p>
+                </div>
+
+                <Button 
+                  variant="outline" 
+                  className="w-full"
+                  onClick={() => navigate('/login')}
+                >
+                  Back to Login
+                </Button>
+              </>
+            ) : (
+              <>
+                <div className="space-y-3">
+                  <p className="text-success font-semibold text-lg">
+                    Congratulations! Your application has been approved.
+                  </p>
+                  <p className="text-muted-foreground text-sm leading-relaxed">
+                    Please confirm your account using the email you signed up with to proceed to your dashboard.
+                  </p>
+                </div>
+
+                <div className="space-y-3">
+                  <Button 
+                    className="w-full gradient-primary text-white font-bold h-12"
+                    onClick={() => navigate('/dashboard')}
+                  >
+                    Go to Dashboard
+                  </Button>
+                  <p className="text-[10px] text-muted-foreground uppercase tracking-widest font-bold">
+                    FleetCommand Intelligent Systems
+                  </p>
+                </div>
+              </>
+            )}
+          </CardContent>
+        </Card>
+      </motion.div>
     </div>
   );
 }

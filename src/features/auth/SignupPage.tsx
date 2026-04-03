@@ -20,6 +20,8 @@ const roles: { value: UserRole; label: string }[] = [
   { value: 'COMPANY_ADMIN', label: 'Company Admin' },
   { value: 'PRIVATE_TRANSPORTER', label: 'Private Transporter' },
   { value: 'BROKER', label: 'Broker' },
+  { value: 'OPERATOR', label: 'Operator' },
+  { value: 'ADMIN', label: 'Admin' },
   { value: 'SUPER_ADMIN', label: 'Super Admin' },
 ];
 

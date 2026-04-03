@@ -21,7 +21,9 @@ export type UserRole =
   | 'COMPANY_ADMIN'
   | 'PRIVATE_TRANSPORTER'
   | 'BROKER'
-  | 'SUPER_ADMIN';
+  | 'SUPER_ADMIN'
+  | 'OPERATOR'
+  | 'ADMIN';
 
 export type UserStatus = 'ACTIVE' | 'PENDING' | 'SUSPENDED' | 'REJECTED';
 

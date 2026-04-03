@@ -26,6 +26,7 @@ export default function RoleDashboardRouter() {
     case 'BROKER':
       return <BrokerDashboard />;
     case 'SUPER_ADMIN':
+    case 'ADMIN':
       return <AdminDashboard />;
     case 'COMPANY_ADMIN':
       return <OperatorDashboard />; // Company admins see operator dashboard

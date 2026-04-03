@@ -10,6 +10,7 @@ export default defineConfig(() => ({
     hmr: {
       overlay: false,
     },
+    allowedHosts: true,
   },
   plugins: [react()],
   resolve: {
