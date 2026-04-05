@@ -47,15 +47,25 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, [refreshUser]);
 
   const login = async (credentials: LoginCredentials) => {
-    const res = await authApi.login(credentials);
-    setUser(res.data.user);
-    setUserRole(res.data.user.role);
+    setIsLoading(true);
+    try {
+      const res = await authApi.login(credentials);
+      setUser(res.data.user);
+      setUserRole(res.data.user.role);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const signup = async (data: SignupData) => {
-    const res = await authApi.signup(data);
-    setUser(res.data.user);
-    setUserRole(res.data.user.role);
+    setIsLoading(true);
+    try {
+      const res = await authApi.signup(data);
+      setUser(res.data.user);
+      setUserRole(res.data.user.role);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const logout = async () => {

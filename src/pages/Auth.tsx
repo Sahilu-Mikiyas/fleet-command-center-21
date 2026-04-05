@@ -56,10 +56,10 @@ const Auth = () => {
         await signup({
           email,
           password,
+          passwordConfirm: password,
           fullName,
-          companyName: company,
-          licenseNumber: license,
-          userRole: role === "passenger" ? "SHIPPER" : "OPERATOR", // Map to actual UserRole enum
+          phoneNumber: '',
+          role: role === "passenger" ? "SHIPPER" : "OPERATOR",
         });
       }
     } catch (err: any) {
