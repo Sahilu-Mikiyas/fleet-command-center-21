@@ -74,12 +74,22 @@ export async function apiRequest<T>(
 
   let res: Response;
   try {
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 30000);
     res = await fetch(`${API_BASE}${endpoint}`, {
       method,
       headers,
       body: requestBody,
+      signal: controller.signal,
     });
-  } catch (networkError) {
+    clearTimeout(timeoutId);
+  } catch (networkError: any) {
+    if (networkError?.name === 'AbortError') {
+      throw new ApiError(
+        'Request timed out. The server may be starting up — please try again.',
+        0
+      );
+    }
     throw new ApiError(
       'Unable to reach the server. It may be starting up — please try again in a moment.',
       0
