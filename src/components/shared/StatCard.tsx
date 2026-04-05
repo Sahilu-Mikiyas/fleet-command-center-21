@@ -53,7 +53,7 @@ export function StatCard({ title, value, subtitle, icon: Icon, trend, className 
         <div className="space-y-2">
           <p className="text-sm font-medium text-muted-foreground">{title}</p>
           <p className="text-3xl font-bold font-display text-foreground">
-            <AnimatedNumber value={value} />
+            {typeof value === 'number' ? <AnimatedNumber value={value} /> : value}
           </p>
           {subtitle && <p className="text-xs text-muted-foreground">{subtitle}</p>}
           {trend && (
