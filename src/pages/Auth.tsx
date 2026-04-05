@@ -51,7 +51,10 @@ const Auth = () => {
     setError(undefined);
     try {
       if (mode === "login") {
-        await login({ email, password });
+        const identifierPayload = email.includes('@')
+          ? { email }
+          : { phoneNumber: email };
+        await login({ ...identifierPayload, password });
       } else {
         await signup({
           email,
