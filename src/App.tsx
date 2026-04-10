@@ -23,7 +23,7 @@ import DriversPage from "@/features/drivers/DriversPage";
 import SettingsPage from "@/features/settings/SettingsPage";
 
 // Placeholder pages
-import OrdersPage from "@/features/orders/OrdersPage";
+import MarketplacePage from "@/features/marketplace/MarketplacePage";
 import ContractsPage from "@/features/contracts/ContractsPage";
 import TrackingPage from "@/features/tracking/TrackingPage";
 import PaymentsPage from "@/features/payments/PaymentsPage";
@@ -81,7 +81,7 @@ const App = () => (
               <Route path="/vehicles" element={<VehiclesPage />} />
               <Route path="/drivers" element={<DriversPage />} />
               <Route path="/settings" element={<SettingsPage />} />
-              <Route path="/orders" element={<OrdersPage />} />
+              <Route path="/orders" element={<MarketplacePage />} />
               <Route path="/contracts" element={<ContractsPage />} />
               <Route path="/tracking" element={<TrackingPage />} />
               <Route path="/payments" element={<PaymentsPage />} />
