@@ -6,6 +6,7 @@ import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { AuthProvider } from "@/context/AuthContext";
 import { AppLayout } from "@/components/layout/AppLayout";
 import { ProtectedRoute } from "@/routes/ProtectedRoute";
+import { UserRole } from "@/types";
 
 // Auth pages
 import LoginPage from "@/features/auth/LoginPage";
@@ -40,6 +41,18 @@ const queryClient = new QueryClient({
   },
 });
 
+const LAYOUT_ALLOWED_ROLES: UserRole[] = [
+  'SHIPPER',
+  'VENDOR',
+  'DRIVER',
+  'COMPANY_ADMIN',
+  'PRIVATE_TRANSPORTER',
+  'BROKER',
+  'SUPER_ADMIN',
+  'OPERATOR',
+  'ADMIN',
+];
+
 const App = () => (
   <QueryClientProvider client={queryClient}>
     <TooltipProvider>
@@ -58,7 +71,7 @@ const App = () => (
             {/* Protected routes */}
             <Route
               element={
-                <ProtectedRoute>
+                <ProtectedRoute allowedRoles={LAYOUT_ALLOWED_ROLES}>
                   <AppLayout />
                 </ProtectedRoute>
               }

@@ -1,9 +1,15 @@
-import { Navigate, useNavigate } from 'react-router-dom';
+import { Navigate } from 'react-router-dom';
 import { useAuth } from '@/context/AuthContext';
 import { motion } from 'framer-motion';
 import { Truck } from 'lucide-react';
+import { UserRole } from '@/types';
 
-export function ProtectedRoute({ children }: { children: React.ReactNode }) {
+interface ProtectedRouteProps {
+  children: React.ReactNode;
+  allowedRoles?: readonly UserRole[];
+}
+
+export function ProtectedRoute({ children, allowedRoles }: ProtectedRouteProps) {
   const { user, userRole, isAuthenticated, isLoading } = useAuth();
 
   if (isLoading) {
@@ -29,9 +35,15 @@ export function ProtectedRoute({ children }: { children: React.ReactNode }) {
 
   if (!isAuthenticated) return <Navigate to="/login" replace />;
 
-  // If user is an OPERATOR and not yet approved, redirect to processing page
-  if (userRole === 'OPERATOR' && user && !user.isApproved) { // Assuming user.isApproved will be added to User type
+  if (userRole === 'OPERATOR' && user && !user.isApproved) {
     return <Navigate to="/processing" replace />;
   }
+
+  if (allowedRoles && allowedRoles.length !== 0 && userRole) {
+    if (!allowedRoles.includes(userRole)) {
+      return <Navigate to="/login" replace />;
+    }
+  }
+
   return <>{children}</>;
 }
