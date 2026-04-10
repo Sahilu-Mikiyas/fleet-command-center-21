@@ -1,16 +1,23 @@
 import { motion } from 'framer-motion';
 import {
-  Users, TrendingUp, AlertTriangle, CheckCircle2, BarChart3, Settings, Shield, Activity,
+  AlertTriangle, BarChart3, Shield, Activity, Building2, FileText, ShoppingCart,
 } from 'lucide-react';
+import { Link } from 'react-router-dom';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { StatCard } from '@/components/shared/StatCard';
 import { Button } from '@/components/ui/button';
 import { useAuth } from '@/context/AuthContext';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { companyApi } from '@/services/api/company';
+import { contractApi } from '@/services/api/contractApi';
+import { ordersApi } from '@/services/api/ordersApi';
+import { vehicleApi } from '@/services/api/vehicle';
+import { toast } from '@/hooks/use-toast';
+import type { Contract, Order, Company } from '@/types';
 
 const stagger = {
   hidden: { opacity: 0 },
   visible: { opacity: 1, transition: { staggerChildren: 0.1 } },
 };
-
 const fadeUp = {
   hidden: { opacity: 0, y: 20 },
   visible: { opacity: 1, y: 0 },
@@ -18,15 +25,47 @@ const fadeUp = {
 
 export default function AdminDashboard() {
   const { user } = useAuth();
+  const queryClient = useQueryClient();
 
-  // Mock data
-  const adminStats = {
-    totalUsers: 1250,
-    pendingApprovals: 23,
-    activeOperators: 156,
-    totalRevenue: 125000,
-    systemHealth: 99.8,
-  };
+  const { data: companies = [] } = useQuery({
+    queryKey: ['companies'],
+    queryFn: companyApi.getCompanies,
+  });
+
+  const { data: vehicles = [] } = useQuery({
+    queryKey: ['vehicles'],
+    queryFn: vehicleApi.getCompanyVehicles,
+  });
+
+  const { data: vendorContractsRes } = useQuery({
+    queryKey: ['contracts', 'vendor'],
+    queryFn: () => contractApi.getVendorContracts(),
+  });
+
+  const { data: companyContractsRes } = useQuery({
+    queryKey: ['contracts', 'company'],
+    queryFn: () => contractApi.getCompanyContracts(),
+  });
+
+  const { data: marketplaceRes } = useQuery({
+    queryKey: ['orders', 'marketplace'],
+    queryFn: () => ordersApi.getMarketplaceOrders(),
+  });
+
+  const vendorContracts: Contract[] = vendorContractsRes?.data?.contracts || [];
+  const companyContracts: Contract[] = companyContractsRes?.data?.contracts || [];
+  const allContracts = [...vendorContracts, ...companyContracts];
+  const marketplaceOrders: Order[] = marketplaceRes?.data?.orders || [];
+  const pendingCompanies = companies.filter((c: Company) => c.status === 'PENDING');
+  const pendingContracts = allContracts.filter(c => c.status === 'PENDING');
+
+  const approveContractMutation = useMutation({
+    mutationFn: (id: string) => contractApi.approveContract(id),
+    onSuccess: () => {
+      toast({ title: 'Contract approved' });
+      queryClient.invalidateQueries({ queryKey: ['contracts'] });
+    },
+  });
 
   const greeting = () => {
     const h = new Date().getHours();
@@ -37,235 +76,141 @@ export default function AdminDashboard() {
 
   return (
     <div className="space-y-8">
-      {/* Welcome Header */}
-      <motion.div
-        initial={{ opacity: 0, y: -10 }}
-        animate={{ opacity: 1, y: 0 }}
-        className="relative overflow-hidden rounded-2xl border border-border bg-card p-8"
-      >
-        <div className="absolute top-0 right-0 h-full w-1/3 bg-gradient-to-l from-red-500/5 to-transparent" />
+      <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} className="relative overflow-hidden rounded-2xl border border-border bg-card p-8">
+        <div className="absolute top-0 right-0 h-full w-1/3 bg-gradient-to-l from-destructive/5 to-transparent" />
         <div className="relative z-10">
           <h1 className="text-3xl font-bold font-display text-foreground mb-1">
             {greeting()}, {user?.fullName?.split(' ')[0] || 'Admin'} 👋
           </h1>
-          <p className="text-muted-foreground">
-            System administration panel • Manage users, approvals, and platform settings
-          </p>
+          <p className="text-muted-foreground">Full platform visibility — approvals, analytics, trust, and system health</p>
         </div>
       </motion.div>
 
-      {/* Critical Metrics */}
+      {/* Global Metrics */}
       <motion.div variants={stagger} initial="hidden" animate="visible" className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
         <motion.div variants={fadeUp}>
-          <Card className="border-border">
-            <CardContent className="pt-6">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm text-muted-foreground mb-1">Total Users</p>
-                  <p className="text-3xl font-bold text-foreground">{adminStats.totalUsers}</p>
-                </div>
-                <Users className="h-8 w-8 text-blue-500 opacity-20" />
-              </div>
-            </CardContent>
-          </Card>
+          <StatCard title="Companies" value={companies.length} icon={Building2} subtitle="Registered" />
         </motion.div>
-
         <motion.div variants={fadeUp}>
-          <Card className="border-border border-orange-500/50 bg-orange-500/5">
-            <CardContent className="pt-6">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm text-muted-foreground mb-1">Pending Approvals</p>
-                  <p className="text-3xl font-bold text-orange-600">{adminStats.pendingApprovals}</p>
-                </div>
-                <AlertTriangle className="h-8 w-8 text-orange-500 opacity-20" />
-              </div>
-            </CardContent>
-          </Card>
+          <StatCard title="Vehicles" value={vehicles.length} icon={BarChart3} subtitle="Fleet total" />
         </motion.div>
-
         <motion.div variants={fadeUp}>
-          <Card className="border-border">
-            <CardContent className="pt-6">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm text-muted-foreground mb-1">Active Operators</p>
-                  <p className="text-3xl font-bold text-green-600">{adminStats.activeOperators}</p>
-                </div>
-                <CheckCircle2 className="h-8 w-8 text-green-500 opacity-20" />
-              </div>
-            </CardContent>
-          </Card>
+          <StatCard title="Contracts" value={allContracts.length} icon={FileText} subtitle={`${pendingContracts.length} pending`} />
         </motion.div>
-
         <motion.div variants={fadeUp}>
-          <Card className="border-border">
-            <CardContent className="pt-6">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm text-muted-foreground mb-1">Total Revenue</p>
-                  <p className="text-3xl font-bold text-foreground">${(adminStats.totalRevenue / 1000).toFixed(0)}K</p>
-                </div>
-                <TrendingUp className="h-8 w-8 text-green-500 opacity-20" />
-              </div>
-            </CardContent>
-          </Card>
+          <StatCard title="Marketplace" value={marketplaceOrders.length} icon={ShoppingCart} subtitle="Orders" />
         </motion.div>
-
         <motion.div variants={fadeUp}>
-          <Card className="border-border">
-            <CardContent className="pt-6">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm text-muted-foreground mb-1">System Health</p>
-                  <p className="text-3xl font-bold text-green-600">{adminStats.systemHealth}%</p>
-                </div>
-                <Activity className="h-8 w-8 text-green-500 opacity-20" />
-              </div>
-            </CardContent>
-          </Card>
+          <StatCard title="Pending Approvals" value={pendingCompanies.length + pendingContracts.length} icon={AlertTriangle} subtitle="Companies + contracts" />
         </motion.div>
       </motion.div>
 
-      {/* Admin Controls & Pending Approvals */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Admin Controls */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.3 }}
-          className="rounded-2xl border border-border bg-card p-6 shadow-card"
-        >
-          <h3 className="text-lg font-semibold font-display mb-4">Admin Controls</h3>
-          <div className="space-y-3">
-            <Button className="w-full justify-start" variant="outline">
-              <Users className="h-4 w-4 mr-2" />
-              Manage Users
-            </Button>
-            <Button className="w-full justify-start" variant="outline">
-              <AlertTriangle className="h-4 w-4 mr-2" />
-              Review Approvals
-            </Button>
-            <Button className="w-full justify-start" variant="outline">
-              <BarChart3 className="h-4 w-4 mr-2" />
-              View Analytics
-            </Button>
-            <Button className="w-full justify-start" variant="outline">
-              <Settings className="h-4 w-4 mr-2" />
-              System Settings
-            </Button>
-            <Button className="w-full justify-start" variant="outline">
-              <Shield className="h-4 w-4 mr-2" />
-              Security & Logs
-            </Button>
-          </div>
-        </motion.div>
-
-        {/* Pending Approvals */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.4 }}
-          className="lg:col-span-2 rounded-2xl border border-border bg-card p-6 shadow-card"
-        >
-          <h3 className="text-lg font-semibold font-display mb-4">Pending Approvals ({adminStats.pendingApprovals})</h3>
-          <div className="space-y-3 max-h-96 overflow-y-auto">
-            {[
-              { name: 'John Operator', role: 'OPERATOR', company: 'Fleet Pro', date: '2 hours ago' },
-              { name: 'Sarah Transport', role: 'OPERATOR', company: 'Logistics Plus', date: '5 hours ago' },
-              { name: 'Mike Broker', role: 'BROKER', company: 'Trade Connect', date: '1 day ago' },
-              { name: 'Emma Driver', role: 'DRIVER', company: 'Fleet Pro', date: '2 days ago' },
-            ].map((approval, i) => (
-              <div key={i} className="p-4 rounded-lg bg-muted/50 border border-border hover:bg-muted transition-colors">
-                <div className="flex items-start justify-between mb-3">
-                  <div>
-                    <p className="font-medium text-foreground">{approval.name}</p>
-                    <p className="text-xs text-muted-foreground">{approval.role} • {approval.company}</p>
+      {/* Approvals Panel + System Analytics */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        {/* Approvals Panel */}
+        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }} className="rounded-2xl border border-border bg-card p-6 shadow-card">
+          <h3 className="text-lg font-semibold font-display mb-4">Pending Company Approvals ({pendingCompanies.length})</h3>
+          {pendingCompanies.length === 0 ? (
+            <p className="text-sm text-muted-foreground">No pending company approvals.</p>
+          ) : (
+            <div className="space-y-3 max-h-64 overflow-y-auto">
+              {pendingCompanies.map((c: Company) => (
+                <div key={c._id} className="p-4 rounded-lg bg-muted/50 border border-border">
+                  <div className="flex items-start justify-between mb-2">
+                    <div>
+                      <p className="font-medium text-foreground">{c.companyName}</p>
+                      <p className="text-xs text-muted-foreground">{c.email}</p>
+                    </div>
+                    <span className="text-xs px-2 py-1 rounded-full bg-accent text-accent-foreground">PENDING</span>
                   </div>
-                  <span className="text-xs text-muted-foreground">{approval.date}</span>
+                  <Button size="sm" className="w-full mt-2">
+                    Approve (PUT /company/{c._id}/approve)
+                  </Button>
                 </div>
-                <div className="flex gap-2">
-                  <Button size="sm" className="flex-1 bg-green-600 hover:bg-green-700">
+              ))}
+            </div>
+          )}
+
+          <h3 className="text-lg font-semibold font-display mt-6 mb-4">Pending Contract Approvals ({pendingContracts.length})</h3>
+          {pendingContracts.length === 0 ? (
+            <p className="text-sm text-muted-foreground">No pending contracts.</p>
+          ) : (
+            <div className="space-y-3 max-h-64 overflow-y-auto">
+              {pendingContracts.map(c => (
+                <div key={c._id} className="p-3 rounded-lg bg-muted/50 flex items-center justify-between">
+                  <p className="text-sm font-medium text-foreground truncate max-w-[200px]">{c._id}</p>
+                  <Button size="sm" variant="outline" disabled={approveContractMutation.isPending} onClick={() => approveContractMutation.mutate(c._id)}>
                     Approve
                   </Button>
-                  <Button size="sm" variant="outline" className="flex-1">
-                    Reject
-                  </Button>
                 </div>
-              </div>
-            ))}
-          </div>
-        </motion.div>
-      </div>
-
-      {/* System Status & Recent Activity */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* System Status */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.5 }}
-          className="rounded-2xl border border-border bg-card p-6 shadow-card"
-        >
-          <h3 className="text-lg font-semibold font-display mb-4">System Status</h3>
-          <div className="space-y-4">
-            <div className="flex items-center justify-between p-3 rounded-lg bg-muted/50">
-              <span className="text-sm font-medium text-foreground">API Server</span>
-              <span className="flex items-center gap-2">
-                <div className="h-2 w-2 rounded-full bg-green-500" />
-                <span className="text-xs font-semibold text-green-600">Operational</span>
-              </span>
+              ))}
             </div>
-            <div className="flex items-center justify-between p-3 rounded-lg bg-muted/50">
-              <span className="text-sm font-medium text-foreground">Database</span>
-              <span className="flex items-center gap-2">
-                <div className="h-2 w-2 rounded-full bg-green-500" />
-                <span className="text-xs font-semibold text-green-600">Operational</span>
-              </span>
-            </div>
-            <div className="flex items-center justify-between p-3 rounded-lg bg-muted/50">
-              <span className="text-sm font-medium text-foreground">Payment Gateway</span>
-              <span className="flex items-center gap-2">
-                <div className="h-2 w-2 rounded-full bg-green-500" />
-                <span className="text-xs font-semibold text-green-600">Operational</span>
-              </span>
-            </div>
-            <div className="flex items-center justify-between p-3 rounded-lg bg-muted/50">
-              <span className="text-sm font-medium text-foreground">Email Service</span>
-              <span className="flex items-center gap-2">
-                <div className="h-2 w-2 rounded-full bg-yellow-500" />
-                <span className="text-xs font-semibold text-yellow-600">Degraded</span>
-              </span>
-            </div>
-          </div>
+          )}
         </motion.div>
 
-        {/* Recent Activity */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.6 }}
-          className="rounded-2xl border border-border bg-card p-6 shadow-card"
-        >
-          <h3 className="text-lg font-semibold font-display mb-4">Recent Activity</h3>
-          <div className="space-y-3">
+        {/* System Analytics */}
+        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.4 }} className="rounded-2xl border border-border bg-card p-6 shadow-card">
+          <h3 className="text-lg font-semibold font-display mb-4">System Analytics</h3>
+          <div className="grid grid-cols-2 gap-4 mb-6">
+            <div className="p-4 rounded-lg bg-muted/50">
+              <p className="text-xs text-muted-foreground mb-1">Active Companies</p>
+              <p className="text-2xl font-bold text-foreground">{companies.filter((c: Company) => c.status === 'ACTIVE').length}</p>
+            </div>
+            <div className="p-4 rounded-lg bg-muted/50">
+              <p className="text-xs text-muted-foreground mb-1">Active Contracts</p>
+              <p className="text-2xl font-bold text-foreground">{allContracts.filter(c => c.status === 'ACTIVE').length}</p>
+            </div>
+            <div className="p-4 rounded-lg bg-muted/50">
+              <p className="text-xs text-muted-foreground mb-1">Open Marketplace</p>
+              <p className="text-2xl font-bold text-foreground">{marketplaceOrders.filter(o => o.status === 'OPEN').length}</p>
+            </div>
+            <div className="p-4 rounded-lg bg-muted/50">
+              <p className="text-xs text-muted-foreground mb-1">Delivered Orders</p>
+              <p className="text-2xl font-bold text-foreground">{marketplaceOrders.filter(o => o.status === 'DELIVERED').length}</p>
+            </div>
+          </div>
+
+          {/* Admin Quick Links */}
+          <h3 className="text-lg font-semibold font-display mb-4">Admin Controls</h3>
+          <div className="space-y-2">
             {[
-              { action: 'User registered', user: 'john@example.com', time: '5 min ago' },
-              { action: 'Operator approved', user: 'Sarah Transport', time: '1 hour ago' },
-              { action: 'Payment processed', user: 'Fleet Pro', time: '3 hours ago' },
-              { action: 'System backup completed', user: 'System', time: '6 hours ago' },
-            ].map((activity, i) => (
-              <div key={i} className="flex items-start gap-3 p-3 rounded-lg bg-muted/50">
-                <Activity className="h-4 w-4 text-blue-500 mt-0.5 flex-shrink-0" />
-                <div className="flex-1">
-                  <p className="text-sm font-medium text-foreground">{activity.action}</p>
-                  <p className="text-xs text-muted-foreground">{activity.user} • {activity.time}</p>
-                </div>
-              </div>
+              { label: 'Manage Companies', to: '/company', icon: Building2 },
+              { label: 'View Contracts', to: '/contracts', icon: FileText },
+              { label: 'Analytics', to: '/analytics', icon: BarChart3 },
+              { label: 'Broker Operations', to: '/broker', icon: ShoppingCart },
+              { label: 'Settings', to: '/settings', icon: Shield },
+            ].map(item => (
+              <Button key={item.label} className="w-full justify-start" variant="outline" asChild>
+                <Link to={item.to}>
+                  <item.icon className="h-4 w-4 mr-2" />{item.label}
+                </Link>
+              </Button>
             ))}
           </div>
         </motion.div>
       </div>
+
+      {/* Trust & Risk Alerts */}
+      <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.5 }} className="rounded-2xl border border-border bg-card p-6 shadow-card">
+        <div className="flex items-center gap-2 mb-4">
+          <Shield className="h-5 w-5 text-destructive" />
+          <h3 className="text-lg font-semibold font-display">Trust & Risk Alerts</h3>
+        </div>
+        <p className="text-sm text-muted-foreground">
+          Flagged users, high-risk transactions, and pending operator approvals will appear here once the trust/risk and admin alerts endpoints are live.
+        </p>
+      </motion.div>
+
+      {/* Audit Trail placeholder */}
+      <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.6 }} className="rounded-2xl border border-border bg-card p-6 shadow-card">
+        <div className="flex items-center gap-2 mb-4">
+          <Activity className="h-5 w-5 text-primary" />
+          <h3 className="text-lg font-semibold font-display">Audit Trail</h3>
+        </div>
+        <p className="text-sm text-muted-foreground">
+          Contract history, equb logs, and system audit events will display here when the audit endpoints are available.
+        </p>
+      </motion.div>
     </div>
   );
 }

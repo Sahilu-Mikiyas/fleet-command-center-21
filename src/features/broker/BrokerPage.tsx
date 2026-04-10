@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import { useState } from 'react';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { motion } from 'framer-motion';
 import { Button } from '@/components/ui/button';
@@ -44,8 +44,6 @@ export default function BrokerPage() {
     mutationFn: ({ orderId, vehicleId }: { orderId: string; vehicleId: string }) => brokerApi.assignVehicle(orderId, vehicleId),
   });
 
-  const selectedOrder = useMemo(() => orders.find((order) => order._id === orderId), [orders, orderId]);
-
   return (
     <div className="space-y-6">
       <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} className="rounded-2xl border border-border bg-card p-8">
@@ -58,9 +56,7 @@ export default function BrokerPage() {
       </motion.div>
 
       <Card>
-        <CardHeader>
-          <CardTitle>Marketplace orders</CardTitle>
-        </CardHeader>
+        <CardHeader><CardTitle>Marketplace orders</CardTitle></CardHeader>
         <CardContent>
           {loadingMarketplace ? (
             <p className="text-sm text-muted-foreground">Loading orders…</p>
@@ -82,16 +78,14 @@ export default function BrokerPage() {
       </Card>
 
       <Card>
-        <CardHeader>
-          <CardTitle>Match & Validation</CardTitle>
-        </CardHeader>
+        <CardHeader><CardTitle>Match & Validation</CardTitle></CardHeader>
         <CardContent className="space-y-3">
           <div>
             <Label>Order ID</Label>
             <Input value={orderId} onChange={(e) => setOrderId(e.target.value)} placeholder="Enter order ID" />
           </div>
-          <Button size="sm" disabled={!orderId} onClick={() => matchMutation.mutate(orderId)}>
-            {matchMutation.isLoading ? 'Matching…' : 'Fetch candidates'}
+          <Button size="sm" disabled={!orderId || matchMutation.isPending} onClick={() => matchMutation.mutate(orderId)}>
+            {matchMutation.isPending ? 'Matching…' : 'Fetch candidates'}
           </Button>
           {selectedMatch && (
             <div className="rounded-2xl border border-border px-4 py-3">
@@ -100,11 +94,11 @@ export default function BrokerPage() {
             </div>
           )}
           <div className="grid gap-3 md:grid-cols-2">
-            <Button size="sm" variant="secondary" disabled={!orderId} onClick={() => validateMutation.mutate(orderId)}>
-              {validateMutation.isLoading ? 'Validating…' : 'Trigger validation'}
+            <Button size="sm" variant="secondary" disabled={!orderId || validateMutation.isPending} onClick={() => validateMutation.mutate(orderId)}>
+              {validateMutation.isPending ? 'Validating…' : 'Trigger validation'}
             </Button>
-            <Button size="sm" variant="ghost" disabled={!orderId} onClick={() => assignVehicleMutation.mutate({ orderId, vehicleId })}>
-              {assignVehicleMutation.isLoading ? 'Assigning Vehicle…' : 'Assign Vehicle'}
+            <Button size="sm" variant="ghost" disabled={!orderId || assignVehicleMutation.isPending} onClick={() => assignVehicleMutation.mutate({ orderId, vehicleId })}>
+              {assignVehicleMutation.isPending ? 'Assigning Vehicle…' : 'Assign Vehicle'}
             </Button>
           </div>
           <div>
@@ -115,18 +109,14 @@ export default function BrokerPage() {
       </Card>
 
       <Card>
-        <CardHeader>
-          <CardTitle>Order assignment</CardTitle>
-        </CardHeader>
+        <CardHeader><CardTitle>Order assignment</CardTitle></CardHeader>
         <CardContent>
           <div className="grid gap-3 lg:grid-cols-3">
             <div>
               <Label>Assignment mode</Label>
               <select className="w-full rounded-lg border border-border/70 bg-background px-3 py-2" value={mode} onChange={(e) => setMode(e.target.value as any)}>
                 {assignmentModes.map((modeOption) => (
-                  <option key={modeOption} value={modeOption}>
-                    {modeOption}
-                  </option>
+                  <option key={modeOption} value={modeOption}>{modeOption}</option>
                 ))}
               </select>
             </div>
@@ -135,13 +125,13 @@ export default function BrokerPage() {
               <Input value={targetId} onChange={(e) => setTargetId(e.target.value)} placeholder="Paste target ID" />
             </div>
             <div className="flex items-end">
-              <Button size="sm" className="w-full" disabled={!orderId || !targetId} onClick={() => assignMutation.mutate({
+              <Button size="sm" className="w-full" disabled={!orderId || !targetId || assignMutation.isPending} onClick={() => assignMutation.mutate({
                 orderId,
                 assignmentMode: mode,
                 targetCompanyId: mode === 'DIRECT_COMPANY' ? targetId : undefined,
                 targetTransporterId: mode === 'DIRECT_PRIVATE_TRANSPORTER' ? targetId : undefined,
               })}>
-                {assignMutation.isLoading ? 'Assigning…' : 'Assign order'}
+                {assignMutation.isPending ? 'Assigning…' : 'Assign order'}
               </Button>
             </div>
           </div>

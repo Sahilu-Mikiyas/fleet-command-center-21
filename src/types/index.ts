@@ -134,6 +134,9 @@ export interface MarketplaceOrderCreatePayload {
 export interface Contract {
   _id: string;
   status: string;
+  createdAt?: string;
+  vendorId?: string;
+  companyId?: string;
 }
 
 export interface Trip {

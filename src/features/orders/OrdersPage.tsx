@@ -98,7 +98,7 @@ export default function OrdersPage() {
         <CardContent>
           {loadingMarketplace ? (
             <p className="text-sm text-muted-foreground">Loading marketplace orders…</p>
-          ) : ( 
+          ) : (
             <div className="grid gap-4 md:grid-cols-2">
               {marketplaceOrders.map((order) => (
                 <div key={order._id} className="rounded-2xl border border-border bg-muted/70 p-4">
@@ -122,9 +122,7 @@ export default function OrdersPage() {
         className="grid gap-6 lg:grid-cols-2"
       >
         <Card>
-          <CardHeader>
-            <CardTitle>My Orders</CardTitle>
-          </CardHeader>
+          <CardHeader><CardTitle>My Orders</CardTitle></CardHeader>
           <CardContent>
             {loadingMine ? (
               <p className="text-sm text-muted-foreground">Loading your orders…</p>
@@ -136,16 +134,14 @@ export default function OrdersPage() {
                     <p className="text-xs text-muted-foreground">Status: {order.status}</p>
                   </div>
                 ))}
-                {!myOrders.length && <p className="text-sm text-muted-foreground">You haven’t created orders yet.</p>}
+                {!myOrders.length && <p className="text-sm text-muted-foreground">You haven't created orders yet.</p>}
               </div>
             )}
           </CardContent>
         </Card>
 
         <Card>
-          <CardHeader>
-            <CardTitle>Create marketplace order</CardTitle>
-          </CardHeader>
+          <CardHeader><CardTitle>Create marketplace order</CardTitle></CardHeader>
           <CardContent>
             <form className="space-y-3" onSubmit={handleSubmit(onSubmit)}>
               <div>
@@ -189,8 +185,8 @@ export default function OrdersPage() {
                 />
                 {errors.budget && <p className="text-xs text-destructive">{errors.budget.message}</p>}
               </div>
-              <Button type="submit" className="w-full" disabled={createOrder.isLoading || isSubmitting}>
-                {createOrder.isLoading || isSubmitting ? 'Submitting…' : 'Create Order'}
+              <Button type="submit" className="w-full" disabled={createOrder.isPending || isSubmitting}>
+                {createOrder.isPending || isSubmitting ? 'Submitting…' : 'Create Order'}
               </Button>
             </form>
           </CardContent>
