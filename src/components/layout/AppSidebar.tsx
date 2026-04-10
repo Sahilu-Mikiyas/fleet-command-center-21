@@ -1,7 +1,17 @@
 import { useLocation, Link } from 'react-router-dom';
 import {
-  LayoutDashboard, Building2, Truck, Users, Settings, Package,
-  FileText, MapPin, CreditCard, BarChart3, Shield, ChevronRight,
+  LayoutDashboard,
+  Building2,
+  Truck,
+  Users,
+  Settings,
+  Package,
+  FileText,
+  MapPin,
+  CreditCard,
+  BarChart3,
+  Shield,
+  ChevronRight,
 } from 'lucide-react';
 import { NavLink } from '@/components/NavLink';
 import {
@@ -19,24 +29,117 @@ import {
 } from '@/components/ui/sidebar';
 import { cn } from '@/lib/utils';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
+import { useAuth } from '@/context/AuthContext';
+import { UserRole } from '@/types';
 
-const operationItems = [
+type SidebarItem = {
+  title: string;
+  url: string;
+  icon: (props: React.SVGProps<SVGSVGElement>) => JSX.Element;
+};
+
+const navConfig: Record<UserRole, { primary: SidebarItem[]; secondary: SidebarItem[] }> = {
+  SHIPPER: {
+    primary: [
+      { title: 'Dashboard', url: '/dashboard', icon: LayoutDashboard },
+      { title: 'Orders', url: '/orders', icon: Package },
+      { title: 'Payments', url: '/payments', icon: CreditCard },
+    ],
+    secondary: [{ title: 'Analytics', url: '/analytics', icon: BarChart3 }],
+  },
+  VENDOR: {
+    primary: [
+      { title: 'Dashboard', url: '/dashboard', icon: LayoutDashboard },
+      { title: 'Orders', url: '/orders', icon: Package },
+    ],
+    secondary: [{ title: 'Contracts', url: '/contracts', icon: FileText }],
+  },
+  DRIVER: {
+    primary: [
+      { title: 'Dashboard', url: '/dashboard', icon: LayoutDashboard },
+      { title: 'Tracking', url: '/tracking', icon: MapPin },
+      { title: 'Payments', url: '/payments', icon: CreditCard },
+    ],
+    secondary: [],
+  },
+  COMPANY_ADMIN: {
+    primary: [
+      { title: 'Dashboard', url: '/dashboard', icon: LayoutDashboard },
+      { title: 'Company', url: '/company', icon: Building2 },
+      { title: 'Vehicles', url: '/vehicles', icon: Truck },
+      { title: 'Drivers', url: '/drivers', icon: Users },
+      { title: 'Contracts', url: '/contracts', icon: FileText },
+    ],
+    secondary: [
+      { title: 'Orders', url: '/orders', icon: Package },
+      { title: 'Analytics', url: '/analytics', icon: BarChart3 },
+      { title: 'Broker Ops', url: '/broker', icon: Shield },
+    ],
+  },
+  PRIVATE_TRANSPORTER: {
+    primary: [
+      { title: 'Dashboard', url: '/dashboard', icon: LayoutDashboard },
+      { title: 'Drivers', url: '/drivers', icon: Users },
+      { title: 'Tracking', url: '/tracking', icon: MapPin },
+    ],
+    secondary: [
+      { title: 'Orders', url: '/orders', icon: Package },
+      { title: 'Payments', url: '/payments', icon: CreditCard },
+    ],
+  },
+  BROKER: {
+    primary: [
+      { title: 'Dashboard', url: '/dashboard', icon: LayoutDashboard },
+      { title: 'Orders', url: '/orders', icon: Package },
+      { title: 'Broker Console', url: '/broker', icon: Shield },
+    ],
+    secondary: [
+      { title: 'Tracking', url: '/tracking', icon: MapPin },
+      { title: 'Analytics', url: '/analytics', icon: BarChart3 },
+    ],
+  },
+  SUPER_ADMIN: {
+    primary: [
+      { title: 'Dashboard', url: '/dashboard', icon: LayoutDashboard },
+      { title: 'Company', url: '/company', icon: Building2 },
+      { title: 'Contracts', url: '/contracts', icon: FileText },
+    ],
+    secondary: [
+      { title: 'Broker Ops', url: '/broker', icon: Shield },
+      { title: 'Analytics', url: '/analytics', icon: BarChart3 },
+      { title: 'Payments', url: '/payments', icon: CreditCard },
+    ],
+  },
+  OPERATOR: {
+    primary: [
+      { title: 'Dashboard', url: '/dashboard', icon: LayoutDashboard },
+      { title: 'Orders', url: '/orders', icon: Package },
+      { title: 'Contracts', url: '/contracts', icon: FileText },
+    ],
+    secondary: [
+      { title: 'Analytics', url: '/analytics', icon: BarChart3 },
+      { title: 'Payments', url: '/payments', icon: CreditCard },
+    ],
+  },
+  ADMIN: {
+    primary: [
+      { title: 'Dashboard', url: '/dashboard', icon: LayoutDashboard },
+      { title: 'Company', url: '/company', icon: Building2 },
+      { title: 'Contracts', url: '/contracts', icon: FileText },
+      { title: 'Broker Ops', url: '/broker', icon: Shield },
+    ],
+    secondary: [
+      { title: 'Analytics', url: '/analytics', icon: BarChart3 },
+      { title: 'Payments', url: '/payments', icon: CreditCard },
+    ],
+  },
+};
+
+const guestConfig: SidebarItem[] = [
   { title: 'Dashboard', url: '/dashboard', icon: LayoutDashboard },
-  { title: 'Company', url: '/company', icon: Building2 },
-  { title: 'Vehicles', url: '/vehicles', icon: Truck },
-  { title: 'Drivers', url: '/drivers', icon: Users },
 ];
 
-const futureItems = [
-  { title: 'Orders', url: '/orders', icon: Package },
-  { title: 'Contracts', url: '/contracts', icon: FileText },
-  { title: 'Tracking', url: '/tracking', icon: MapPin },
-  { title: 'Payments', url: '/payments', icon: CreditCard },
-  { title: 'Analytics', url: '/analytics', icon: BarChart3 },
-  { title: 'Broker Ops', url: '/broker', icon: Shield },
-];
-
-function SidebarNavItem({ item, collapsed }: { item: typeof operationItems[0]; collapsed: boolean }) {
+function SidebarNavItem({ item, collapsed }: { item: SidebarItem; collapsed: boolean }) {
   const location = useLocation();
   const isActive = location.pathname === item.url;
 
@@ -74,6 +177,9 @@ function SidebarNavItem({ item, collapsed }: { item: typeof operationItems[0]; c
 export function AppSidebar() {
   const { state } = useSidebar();
   const collapsed = state === 'collapsed';
+  const { userRole } = useAuth();
+
+  const config = userRole ? navConfig[userRole] : { primary: guestConfig, secondary: [] };
 
   return (
     <Sidebar collapsible="icon" className="border-r border-sidebar-border">
@@ -93,10 +199,10 @@ export function AppSidebar() {
 
       <SidebarContent className="px-2">
         <SidebarGroup>
-          {!collapsed && <SidebarGroupLabel className="text-[11px] uppercase tracking-wider text-muted-foreground/70 px-3 mb-1">Operations</SidebarGroupLabel>}
+          {!collapsed && <SidebarGroupLabel className="text-[11px] uppercase tracking-wider text-muted-foreground/70 px-3 mb-1">Primary</SidebarGroupLabel>}
           <SidebarGroupContent>
             <SidebarMenu>
-              {operationItems.map((item) => (
+              {config.primary.map((item) => (
                 <SidebarMenuItem key={item.url}>
                   <SidebarNavItem item={item} collapsed={collapsed} />
                 </SidebarMenuItem>
@@ -105,18 +211,20 @@ export function AppSidebar() {
           </SidebarGroupContent>
         </SidebarGroup>
 
-        <SidebarGroup>
-          {!collapsed && <SidebarGroupLabel className="text-[11px] uppercase tracking-wider text-muted-foreground/70 px-3 mb-1 mt-2">Modules</SidebarGroupLabel>}
-          <SidebarGroupContent>
-            <SidebarMenu>
-              {futureItems.map((item) => (
-                <SidebarMenuItem key={item.url}>
-                  <SidebarNavItem item={item} collapsed={collapsed} />
-                </SidebarMenuItem>
-              ))}
-            </SidebarMenu>
-          </SidebarGroupContent>
-        </SidebarGroup>
+        {config.secondary.length > 0 && (
+          <SidebarGroup>
+            {!collapsed && <SidebarGroupLabel className="text-[11px] uppercase tracking-wider text-muted-foreground/70 px-3 mb-1 mt-2">Additional</SidebarGroupLabel>}
+            <SidebarGroupContent>
+              <SidebarMenu>
+                {config.secondary.map((item) => (
+                  <SidebarMenuItem key={item.url}>
+                    <SidebarNavItem item={item} collapsed={collapsed} />
+                  </SidebarMenuItem>
+                ))}
+              </SidebarMenu>
+            </SidebarGroupContent>
+          </SidebarGroup>
+        )}
       </SidebarContent>
 
       <SidebarFooter className="p-2">
