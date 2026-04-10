@@ -9,7 +9,6 @@ import { StatusBadge } from '@/components/shared/StatusBadge';
 import { Button } from '@/components/ui/button';
 import { useAuth } from '@/context/AuthContext';
 import { ordersApi } from '@/services/api/ordersApi';
-import { ordersApi } from '@/services/api/ordersApi';
 import type { Order } from '@/types';
 
 const stagger = {
