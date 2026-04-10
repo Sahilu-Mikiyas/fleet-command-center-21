@@ -83,8 +83,52 @@ export type DriverStatus = 'ACTIVE' | 'PENDING' | 'SUSPENDED' | 'REJECTED';
 // Future extensible types
 export interface Order {
   _id: string;
-  status: string;
-  // placeholder
+  title?: string;
+  status?: 'OPEN' | 'MATCHED' | 'ASSIGNED' | 'IN_TRANSIT' | 'DELIVERED' | 'CANCELLED';
+  assignmentMode?: 'DIRECT_COMPANY' | 'DIRECT_PRIVATE_TRANSPORTER' | 'OPEN_MARKETPLACE';
+  pickupLocation?: {
+    address?: string;
+    city?: string;
+    country?: string;
+  };
+  deliveryLocation?: {
+    address?: string;
+    city?: string;
+    country?: string;
+  };
+  pricing?: {
+    proposedBudget?: number;
+    currency?: string;
+    paymentMethod?: string;
+  };
+  createdAt?: string;
+}
+
+export interface MarketplaceOrderCreatePayload {
+  assignmentMode: 'OPEN_MARKETPLACE' | 'DIRECT_COMPANY' | 'DIRECT_PRIVATE_TRANSPORTER';
+  title: string;
+  description?: string;
+  pickupLocation: {
+    address: string;
+    city: string;
+    country?: string;
+    contactName?: string;
+    contactPhone?: string;
+  };
+  deliveryLocation: {
+    address: string;
+    city: string;
+    country?: string;
+    contactName?: string;
+    contactPhone?: string;
+  };
+  pickupDate: string;
+  deliveryDeadline?: string;
+  proposedBudget: number;
+  currency?: string;
+  paymentMethod?: 'CASH' | 'BANK_TRANSFER' | 'WALLET' | 'CARD';
+  negotiable?: boolean;
+  specialInstructions?: string;
 }
 
 export interface Contract {

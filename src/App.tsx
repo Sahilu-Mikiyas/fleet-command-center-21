@@ -22,7 +22,12 @@ import DriversPage from "@/features/drivers/DriversPage";
 import SettingsPage from "@/features/settings/SettingsPage";
 
 // Placeholder pages
-import { OrdersPage, ContractsPage, TrackingPage, PaymentsPage, AnalyticsPage, BrokerPage } from "@/features/placeholders";
+import OrdersPage from "@/features/orders/OrdersPage";
+import ContractsPage from "@/features/contracts/ContractsPage";
+import TrackingPage from "@/features/tracking/TrackingPage";
+import PaymentsPage from "@/features/payments/PaymentsPage";
+import AnalyticsPage from "@/features/analytics/AnalyticsPage";
+import BrokerPage from "@/features/broker/BrokerPage";
 
 import NotFound from "./pages/NotFound";
 

@@ -1,10 +1,50 @@
+import { useMemo } from 'react';
 import { motion } from 'framer-motion';
+import { useQuery } from '@tanstack/react-query';
 import { useAuth } from '@/context/AuthContext';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { AlertCircle, Home } from 'lucide-react';
+import { companyApi } from '@/services/api/company';
+import { vehicleApi } from '@/services/api/vehicle';
+import { driverApi } from '@/services/api/driver';
+import { ordersApi } from '@/services/api/ordersApi';
+import { Activity, Home } from 'lucide-react';
+
+function StatCard({ title, value, description }: { title: string; value: number | string; description: string }) {
+  return (
+    <div className="rounded-2xl border border-border bg-card p-6 shadow-sm">
+      <p className="text-sm font-medium text-muted-foreground">{title}</p>
+      <p className="text-3xl font-bold text-foreground my-3">{value}</p>
+      <p className="text-xs text-muted-foreground">{description}</p>
+    </div>
+  );
+}
 
 export default function DefaultDashboard() {
   const { user } = useAuth();
+
+  const { data: companies, isLoading: companiesLoading } = useQuery({
+    queryKey: ['dashboard', 'companies'],
+    queryFn: companyApi.getCompanies,
+  });
+  const { data: vehicles, isLoading: vehiclesLoading } = useQuery({
+    queryKey: ['dashboard', 'vehicles'],
+    queryFn: vehicleApi.getCompanyVehicles,
+  });
+  const { data: assignments, isLoading: assignmentsLoading } = useQuery({
+    queryKey: ['dashboard', 'assignments'],
+    queryFn: driverApi.getAssignments,
+  });
+  const { data: ordersResponse, isLoading: ordersLoading } = useQuery({
+    queryKey: ['dashboard', 'orders'],
+    queryFn: ordersApi.getMyOrders,
+  });
+
+  const orders = useMemo(() => ordersResponse?.data?.orders || [], [ordersResponse]);
+  const companyCount = companies?.length ?? 0;
+  const vehicleCount = vehicles?.length ?? 0;
+  const assignmentCount = assignments?.length ?? 0;
+
+  const isLoading = companiesLoading || vehiclesLoading || assignmentsLoading || ordersLoading;
 
   const greeting = () => {
     const h = new Date().getHours();
@@ -15,7 +55,6 @@ export default function DefaultDashboard() {
 
   return (
     <div className="space-y-8">
-      {/* Welcome Header */}
       <motion.div
         initial={{ opacity: 0, y: -10 }}
         animate={{ opacity: 1, y: 0 }}
@@ -26,61 +65,86 @@ export default function DefaultDashboard() {
           <h1 className="text-3xl font-bold font-display text-foreground mb-1">
             {greeting()}, {user?.fullName?.split(' ')[0] || 'User'} 👋
           </h1>
-          <p className="text-muted-foreground">
-            Welcome to Fleet Command Center
-          </p>
+          <p className="text-muted-foreground">Welcome to Fleet Command Center</p>
         </div>
       </motion.div>
 
-      {/* Info Card */}
       <motion.div
+        transition={{ delay: 0.1 }}
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        className="rounded-2xl border border-border bg-card p-8 shadow-card"
+        className="grid gap-6 md:grid-cols-2 xl:grid-cols-4"
       >
-        <div className="flex items-start gap-4">
-          <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-blue-500/10">
-            <Home className="h-6 w-6 text-blue-500" />
-          </div>
-          <div>
-            <h3 className="text-lg font-semibold font-display mb-2">Welcome to Your Dashboard</h3>
-            <p className="text-muted-foreground mb-4">
-              Your dashboard is being personalized based on your role and preferences. 
-              If you're seeing this page, your role-specific dashboard is still being configured.
-            </p>
-            <p className="text-sm text-muted-foreground">
-              Role: <span className="font-semibold text-foreground">{user?.role || 'Not assigned'}</span>
-            </p>
-          </div>
-        </div>
+        <StatCard title="Active Companies" value={companyCount} description="Transport companies onboarded" />
+        <StatCard title="Fleet vehicles" value={vehicleCount} description="Registered vehicles" />
+        <StatCard
+          title="Orders & Assignments"
+          value={orders.length}
+          description="Orders you created"
+        />
+        <StatCard
+          title="Driver Assignments"
+          value={assignmentCount}
+          description="Active driver trips"
+        />
       </motion.div>
 
-      {/* User Info Card */}
       <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.2 }}
-        className="rounded-2xl border border-border bg-card p-6 shadow-card"
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        className="grid gap-6 lg:grid-cols-[1fr_1fr_1fr]"
       >
-        <h3 className="text-lg font-semibold font-display mb-4">Your Profile</h3>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div className="p-4 rounded-lg bg-muted/50">
-            <p className="text-xs text-muted-foreground mb-1">Full Name</p>
-            <p className="font-semibold text-foreground">{user?.fullName || 'Not provided'}</p>
-          </div>
-          <div className="p-4 rounded-lg bg-muted/50">
-            <p className="text-xs text-muted-foreground mb-1">Email</p>
-            <p className="font-semibold text-foreground">{user?.email || 'Not provided'}</p>
-          </div>
-          <div className="p-4 rounded-lg bg-muted/50">
-            <p className="text-xs text-muted-foreground mb-1">Role</p>
-            <p className="font-semibold text-foreground">{user?.role || 'Not assigned'}</p>
-          </div>
-          <div className="p-4 rounded-lg bg-muted/50">
-            <p className="text-xs text-muted-foreground mb-1">Status</p>
-            <p className="font-semibold text-foreground">{user?.status || 'Active'}</p>
-          </div>
-        </div>
+        <Card>
+          <CardHeader className="flex items-center gap-3">
+            <Home className="h-5 w-5 text-primary" />
+            <CardTitle className="text-base font-semibold">Companies</CardTitle>
+          </CardHeader>
+          <CardContent>
+            {isLoading ? (
+              <p className="text-sm text-muted-foreground">Loading companies...</p>
+            ) : companyCount > 0 ? (
+              <p className="text-sm text-foreground">{companyCount} active companies today.</p>
+            ) : (
+              <p className="text-sm text-muted-foreground">No companies yet.</p>
+            )}
+          </CardContent>
+        </Card>
+        <Card>
+          <CardHeader className="flex items-center gap-3">
+            <Activity className="h-5 w-5 text-secondary" />
+            <CardTitle className="text-base font-semibold">Active Orders</CardTitle>
+          </CardHeader>
+          <CardContent>
+            {isLoading ? (
+              <p className="text-sm text-muted-foreground">Loading orders...</p>
+            ) : orders.length ? (
+              orders.slice(0, 3).map((order) => (
+                <div key={order._id} className="mb-3 last:mb-0">
+                  <p className="text-sm font-semibold text-foreground">{order.title || order._id}</p>
+                  <p className="text-xs text-muted-foreground">Status: {order.status || 'UNKNOWN'}</p>
+                </div>
+              ))
+            ) : (
+              <p className="text-sm text-muted-foreground">No recent orders.</p>
+            )}
+          </CardContent>
+        </Card>
+        <Card>
+          <CardHeader className="flex items-center gap-3">
+            <Activity className="h-5 w-5 text-emerald-500" />
+            <CardTitle className="text-base font-semibold">Driver Tracker</CardTitle>
+          </CardHeader>
+          <CardContent>
+            {isLoading ? (
+              <p className="text-sm text-muted-foreground">Loading assignments...</p>
+            ) : assignmentCount ? (
+              <p className="text-sm text-foreground">{assignmentCount} driver assignments live.</p>
+            ) : (
+              <p className="text-sm text-muted-foreground">No driver trips yet.</p>
+            )}
+          </CardContent>
+        </Card>
       </motion.div>
     </div>
   );

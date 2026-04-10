@@ -15,13 +15,16 @@ export const driverApi = {
     });
   },
 
-  // Isolated: endpoint ambiguity — {id} may be company or driver ID. 
-  // Currently using company/{id}/drivers as PATCH target.
   async updateDriver(id: string, data: UpdateDriverData) {
     return apiRequest<ApiResponse<{ driver: Driver }>>(`/company/${id}/drivers`, {
       method: 'PATCH',
       body: data,
       isFormData: true,
     });
+  },
+
+  async getAssignments() {
+    const res = await apiRequest<{ status: string; data: { assignments: any[] } }>('/driver/assignments');
+    return res.data?.assignments || [];
   },
 };

@@ -28,7 +28,10 @@ export default function LoginPage() {
 
   const onSubmit = async (data: LoginForm) => {
     try {
-      await login({ identifier: data.identifier, password: data.password });
+      const payload = data.identifier.includes('@')
+        ? { email: data.identifier }
+        : { phoneNumber: data.identifier };
+      await login({ ...payload, password: data.password });
       toast.success('Welcome back!');
       navigate('/dashboard');
     } catch (err: any) {
