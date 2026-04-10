@@ -36,7 +36,7 @@ export default function PaymentsPage() {
     },
   });
 
-  const { mutate, data, isLoading } = useMutation({
+  const { mutate, data, isPending } = useMutation({
     mutationFn: (values: PaymentForm) => {
       const payload: ChapaPaymentPayload = {
         amount: values.amount,
@@ -77,9 +77,7 @@ export default function PaymentsPage() {
       </motion.div>
 
       <Card>
-        <CardHeader>
-          <CardTitle>Chapa top-up</CardTitle>
-        </CardHeader>
+        <CardHeader><CardTitle>Chapa top-up</CardTitle></CardHeader>
         <CardContent>
           <form className="space-y-4" onSubmit={handleSubmit(onSubmit)}>
             <div>
@@ -108,8 +106,8 @@ export default function PaymentsPage() {
               <Label>Description</Label>
               <Input {...register('description')} placeholder="e.g. Monthly top-up" />
             </div>
-            <Button type="submit" className="w-full" disabled={isSubmitting || isLoading}>
-              {isSubmitting || isLoading ? 'Initializing…' : 'Pay with Chapa'} <ArrowRight className="ml-2 h-4 w-4" />
+            <Button type="submit" className="w-full" disabled={isSubmitting || isPending}>
+              {isSubmitting || isPending ? 'Initializing…' : 'Pay with Chapa'} <ArrowRight className="ml-2 h-4 w-4" />
             </Button>
           </form>
 
@@ -121,9 +119,9 @@ export default function PaymentsPage() {
               </a>
             </div>
           )}
-          {!data?.checkout_url && !isLoading && (
+          {!data?.checkout_url && !isPending && (
             <p className="mt-3 text-xs text-muted-foreground">
-              We’ll call `POST /api/payments/chapa` to generate the checkout URL using your server-side secret.
+              We'll call `POST /api/payments/chapa` to generate the checkout URL using your server-side secret.
             </p>
           )}
         </CardContent>

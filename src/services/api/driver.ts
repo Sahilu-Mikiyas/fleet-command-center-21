@@ -27,4 +27,11 @@ export const driverApi = {
     const res = await apiRequest<{ status: string; data: { assignments: any[] } }>('/driver/assignments');
     return res.data?.assignments || [];
   },
+
+  async updateStatus(status: string) {
+    return apiRequest<ApiResponse<any>>('/driver/status', {
+      method: 'PATCH',
+      body: { status },
+    });
+  },
 };
