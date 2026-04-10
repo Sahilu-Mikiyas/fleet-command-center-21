@@ -121,7 +121,7 @@ export default function AdminDashboard() {
                       <p className="font-medium text-foreground">{c.companyName}</p>
                       <p className="text-xs text-muted-foreground">{c.email}</p>
                     </div>
-                    <span className="text-xs px-2 py-1 rounded-full bg-yellow-500/20 text-yellow-600">PENDING</span>
+                    <span className="text-xs px-2 py-1 rounded-full bg-accent text-accent-foreground">PENDING</span>
                   </div>
                   <Button size="sm" className="w-full mt-2">
                     Approve (PUT /company/{c._id}/approve)
