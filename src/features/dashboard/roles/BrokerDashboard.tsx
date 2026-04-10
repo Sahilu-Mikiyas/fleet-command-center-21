@@ -1,7 +1,7 @@
 import { useMemo, useState } from 'react';
 import { motion } from 'framer-motion';
 import {
-  ShoppingCart, Search, CheckCircle2, Truck, TrendingUp, AlertCircle,
+  ShoppingCart, Search, CheckCircle2, TrendingUp, AlertCircle,
 } from 'lucide-react';
 import { useQuery, useMutation } from '@tanstack/react-query';
 import { StatCard } from '@/components/shared/StatCard';
@@ -44,7 +44,7 @@ export default function BrokerDashboard() {
       (o.pickupLocation?.city || '').toLowerCase().includes(lower) ||
       (o.deliveryLocation?.city || '').toLowerCase().includes(lower)
     );
-  }, [orders, filterText]);
+  }, [marketplaceRes, filterText]);
 
   const matchMutation = useMutation({
     mutationFn: (id: string) => brokerApi.matchCandidates(id),

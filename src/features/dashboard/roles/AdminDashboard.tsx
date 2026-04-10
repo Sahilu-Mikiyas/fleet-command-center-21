@@ -1,13 +1,13 @@
 import { motion } from 'framer-motion';
 import {
-  Users, TrendingUp, AlertTriangle, CheckCircle2, BarChart3, Shield, Activity, Building2, FileText, ShoppingCart,
+  AlertTriangle, BarChart3, Shield, Activity, Building2, FileText, ShoppingCart,
 } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { StatCard } from '@/components/shared/StatCard';
 import { Button } from '@/components/ui/button';
 import { useAuth } from '@/context/AuthContext';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { StatCard } from '@/components/shared/StatCard';
 import { companyApi } from '@/services/api/company';
 import { contractApi } from '@/services/api/contractApi';
 import { ordersApi } from '@/services/api/ordersApi';

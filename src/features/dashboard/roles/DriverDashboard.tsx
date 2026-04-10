@@ -4,7 +4,7 @@ import {
   MapPin, Clock, DollarSign, Navigation, Phone, Truck, ToggleLeft, ToggleRight, Package, CheckCircle2,
 } from 'lucide-react';
 import { Link } from 'react-router-dom';
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useQuery, useMutation } from '@tanstack/react-query';
 import { Button } from '@/components/ui/button';
 import { useAuth } from '@/context/AuthContext';
 import { Card, CardContent } from '@/components/ui/card';
@@ -22,7 +22,7 @@ const fadeUp = {
 
 export default function DriverDashboard() {
   const { user } = useAuth();
-  const queryClient = useQueryClient();
+  
   const [driverStatus, setDriverStatus] = useState<string>(user?.isAvailable ? 'ACTIVE' : 'OFFLINE');
 
   const { data: assignments = [], isLoading: loadingAssignments } = useQuery({

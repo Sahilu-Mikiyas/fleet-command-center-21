@@ -1,5 +1,6 @@
 import { apiRequest } from './client';
 import type { ApiResponse, Driver, CreateDriverData, UpdateDriverData } from '@/types';
+import type { ApiResponse, Driver, CreateDriverData, UpdateDriverData } from '@/types';
 
 export const driverApi = {
   async getCompanyDrivers(companyId: string) {

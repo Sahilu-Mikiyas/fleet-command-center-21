@@ -1,6 +1,6 @@
 import { motion } from 'framer-motion';
 import {
-  Truck, Users, BarChart3, AlertTriangle, MapPin, DollarSign, TrendingUp, FileText, ShoppingCart,
+  Truck, Users, BarChart3, MapPin, DollarSign, FileText, ShoppingCart,
 } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
