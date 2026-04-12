@@ -350,8 +350,8 @@ export default function MarketplacePage() {
               <Input type="number" {...register('budget', { valueAsNumber: true })} placeholder="Proposed budget" />
             </div>
             <Textarea {...register('notes')} placeholder="Special instructions" className="mt-3" />
-            <Button className="mt-4" onClick={handleSubmit(handleCreateOrder)} disabled={createOrderMutation.isLoading || isSubmitting}>
-              {createOrderMutation.isLoading ? 'Posting…' : 'Post shipment'}
+            <Button className="mt-4" onClick={handleSubmit(handleCreateOrder)} disabled={createOrderMutation.isPending || isSubmitting}>
+              {createOrderMutation.isPending ? 'Posting…' : 'Post shipment'}
             </Button>
           </motion.div>
 
@@ -390,7 +390,7 @@ export default function MarketplacePage() {
                     <div key={order._id} className="rounded-2xl border border-border px-4 py-3">
                       <p className="font-semibold">{order.title || order._id}</p>
                       <p className="text-xs text-muted-foreground">Budget: {order.pricing?.proposedBudget ?? '--'}</p>
-                      <Button size="sm" variant="tertiary" onClick={() => handleAddToWishlist(order._id)}>
+                      <Button size="sm" variant="ghost" onClick={() => handleAddToWishlist(order._id)}>
                         {wishlist.includes(order._id) ? 'Saved' : 'Save reference'}
                       </Button>
                     </div>
