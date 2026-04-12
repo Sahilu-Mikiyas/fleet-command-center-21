@@ -65,6 +65,16 @@ export default function AdminDashboard() {
       toast({ title: 'Contract approved' });
       queryClient.invalidateQueries({ queryKey: ['contracts'] });
     },
+    onError: () => toast({ title: 'Approval failed', variant: 'destructive' }),
+  });
+
+  const approveCompanyMutation = useMutation({
+    mutationFn: (id: string) => companyApi.approveCompany(id),
+    onSuccess: () => {
+      toast({ title: 'Company approved' });
+      queryClient.invalidateQueries({ queryKey: ['companies'] });
+    },
+    onError: () => toast({ title: 'Company approval failed', variant: 'destructive' }),
   });
 
   const greeting = () => {
@@ -123,8 +133,8 @@ export default function AdminDashboard() {
                     </div>
                     <span className="text-xs px-2 py-1 rounded-full bg-accent text-accent-foreground">PENDING</span>
                   </div>
-                  <Button size="sm" className="w-full mt-2">
-                    Approve (PUT /company/{c._id}/approve)
+                  <Button size="sm" className="w-full mt-2" disabled={approveCompanyMutation.isPending} onClick={() => approveCompanyMutation.mutate(c._id)}>
+                    {approveCompanyMutation.isPending ? 'Approving…' : 'Approve Company'}
                   </Button>
                 </div>
               ))}
