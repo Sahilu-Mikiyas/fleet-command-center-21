@@ -31,4 +31,10 @@ export const companyApi = {
   async deleteCompany(id: string) {
     return apiRequest(`/company/${id}`, { method: 'DELETE' });
   },
+
+  async approveCompany(id: string) {
+    return apiRequest<ApiResponse<{ company: Company }>>(`/company/${id}/approve`, {
+      method: 'PUT',
+    });
+  },
 };
