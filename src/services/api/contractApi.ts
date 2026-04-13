@@ -1,7 +1,21 @@
 import { apiRequest } from './client';
 import type { ApiResponse, Contract } from '@/types';
 
+export interface ContractInitiatePayload {
+  vendorId?: string;
+  companyId?: string;
+  terms?: string;
+  notes?: string;
+}
+
 export const contractApi = {
+  async initiateContract(payload: ContractInitiatePayload) {
+    return apiRequest<ApiResponse<{ contract: Contract }>>('/contract/initiate', {
+      method: 'POST',
+      body: payload,
+    });
+  },
+
   async getVendorContracts() {
     return apiRequest<ApiResponse<{ contracts: Contract[] }>>('/contract/vendor');
   },

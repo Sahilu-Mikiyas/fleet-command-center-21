@@ -1,21 +1,38 @@
 import { apiRequest } from './client';
+import type { ApiResponse } from '@/types';
 
-export interface ChapaPaymentPayload {
+export interface PaymentInitPayload {
+  orderId: string;
   amount: number;
-  currency: 'ETB' | 'USD';
-  email: string;
-  first_name: string;
-  last_name: string;
-  callback_url: string;
-  return_url?: string;
+  currency?: string;
+  email?: string;
+  first_name?: string;
+  last_name?: string;
   description?: string;
+  callback_url?: string;
+  return_url?: string;
 }
 
 export const paymentsApi = {
-  initializeChapa(payload: ChapaPaymentPayload) {
-    return apiRequest<{ checkout_url: string }>('/payments/chapa', {
+  async initializePayment(payload: PaymentInitPayload) {
+    return apiRequest<ApiResponse<{ checkout_url?: string; tx_ref?: string }>>('/payment/initialize', {
       method: 'POST',
       body: payload,
     });
+  },
+
+  async verifyPayment(txRef: string) {
+    return apiRequest<ApiResponse<any>>('/payment/verify', {
+      method: 'POST',
+      body: { tx_ref: txRef },
+    });
+  },
+
+  async getTransactions() {
+    return apiRequest<ApiResponse<{ transactions: any[] }>>('/transactions');
+  },
+
+  async getTransactionByRef(txRef: string) {
+    return apiRequest<ApiResponse<{ transaction: any }>>(`/transactions/${txRef}`);
   },
 };
