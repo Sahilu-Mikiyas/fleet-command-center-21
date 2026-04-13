@@ -14,7 +14,7 @@ import { useAuth } from '@/context/AuthContext';
 import { toast } from 'sonner';
 import {
   ArrowRight, CreditCard, ExternalLink, Search, Wallet,
-  History, CheckCircle2, Clock, DollarSign,
+  History, CheckCircle2, DollarSign,
 } from 'lucide-react';
 
 const paymentSchema = z.object({
@@ -35,7 +35,7 @@ const txStatusColor: Record<string, string> = {
 };
 
 export default function PaymentsPage() {
-  const { user, userRole } = useAuth();
+  const { user } = useAuth();
   const [verifyRef, setVerifyRef] = useState('');
   const [checkoutUrl, setCheckoutUrl] = useState<string | null>(null);
 
@@ -87,7 +87,7 @@ export default function PaymentsPage() {
 
   const verifyMutation = useMutation({
     mutationFn: (txRef: string) => paymentsApi.verifyPayment(txRef),
-    onSuccess: (data) => {
+    onSuccess: () => {
       toast.success('Payment verified successfully');
       setVerifyRef('');
     },

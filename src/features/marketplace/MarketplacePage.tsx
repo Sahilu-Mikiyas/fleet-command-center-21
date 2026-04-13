@@ -19,7 +19,7 @@ import { useAuth } from '@/context/AuthContext';
 import { toast } from 'sonner';
 import {
   ShoppingCart, Package, Search, Heart, Plus, Send, Eye,
-  MapPin, DollarSign, Calendar, X, Check, XCircle, FileText,
+  MapPin, DollarSign, Calendar, Check, XCircle, FileText,
 } from 'lucide-react';
 import type { MarketplaceOrderCreatePayload, Order } from '@/types';
 
@@ -46,7 +46,7 @@ export default function MarketplacePage() {
 
   const isShipperView = userRole === 'SHIPPER' || userRole === 'VENDOR';
   const isDriverView = ['DRIVER', 'PRIVATE_TRANSPORTER'].includes(userRole ?? '');
-  const isBrokerView = ['BROKER', 'OPERATOR', 'COMPANY_ADMIN', 'ADMIN', 'SUPER_ADMIN'].includes(userRole ?? '');
+  const _isBrokerView = ['BROKER', 'OPERATOR', 'COMPANY_ADMIN', 'ADMIN', 'SUPER_ADMIN'].includes(userRole ?? '');
 
   const [mode, setMode] = useState<'browse' | 'post' | 'saved' | 'proposals'>(isShipperView ? 'post' : 'browse');
   const [filters, setFilters] = useState({ search: '', sort: 'newest', status: 'ALL' });

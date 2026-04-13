@@ -2,14 +2,14 @@ import { useState } from 'react';
 import { motion } from 'framer-motion';
 import {
   MapPin, DollarSign, Navigation, Phone, Truck, ToggleLeft, ToggleRight,
-  Package, CheckCircle2, Play, Flag, Clock, History, Wallet, ChevronRight,
+  Package, CheckCircle2, Play, Flag, History, Wallet,
 } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { useAuth } from '@/context/AuthContext';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent } from '@/components/ui/card';
 import { driverApi } from '@/services/api/driver';
 import { toast } from 'sonner';
 
