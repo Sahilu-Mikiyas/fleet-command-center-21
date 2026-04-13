@@ -2,3 +2,8 @@ export * from "./authApi";
 export * from "./companyApi";
 export * from "./vehicleApi";
 export * from "./driverApi";
+export * from "./ordersApi";
+export * from "./contractApi";
+export * from "./paymentsApi";
+export * from "./brokerApi";
+export * from "./configApi";

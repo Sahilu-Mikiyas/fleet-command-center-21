@@ -37,4 +37,10 @@ export const companyApi = {
       method: 'PUT',
     });
   },
+
+  async approveUser(userId: string) {
+    return apiRequest<ApiResponse<any>>(`/company/users/${userId}/approve`, {
+      method: 'PUT',
+    });
+  },
 };
