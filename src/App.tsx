@@ -3,7 +3,7 @@ import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
-import { AuthProvider } from "@/context/AuthContext";
+import { AuthProvider, useAuth } from "@/context/AuthContext";
 import { AppLayout } from "@/components/layout/AppLayout";
 import { ProtectedRoute } from "@/routes/ProtectedRoute";
 import { UserRole } from "@/types";
@@ -123,9 +123,6 @@ const App = () => (
 
 // Wrapper that picks ShipperOrdersPage for SHIPPER, generic OrdersPage otherwise
 function ShipperOrdersOrGeneric() {
-  // Lazy require to avoid import cycle
-  // eslint-disable-next-line @typescript-eslint/no-var-requires
-  const { useAuth } = require('@/context/AuthContext');
   const { userRole } = useAuth();
   if (userRole === 'SHIPPER') return <ShipperOrdersPage />;
   return <OrdersPage />;
