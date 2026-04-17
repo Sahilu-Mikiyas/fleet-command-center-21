@@ -17,20 +17,29 @@ export default function CurrentTripPage() {
 
   const assignments = (data as any[]) || [];
   const current = assignments.find((a: any) => ['ASSIGNED', 'IN_TRANSIT', 'AT_PICKUP'].includes(a.status)) || assignments[0];
+  const currentId = current?._id || '';
 
-  const action = (fn: () => Promise<any>, label: string) =>
-    useMutation({
-      mutationFn: fn,
-      onSuccess: () => {
-        toast.success(`${label} updated`);
-        queryClient.invalidateQueries({ queryKey: ['driver', 'assignments'] });
-      },
-      onError: (err: any) => toast.error(err.message || `Failed to ${label.toLowerCase()}`),
-    });
+  const onSuccess = (label: string) => () => {
+    toast.success(`${label}`);
+    queryClient.invalidateQueries({ queryKey: ['driver', 'assignments'] });
+  };
+  const onError = (label: string) => (err: any) => toast.error(err.message || `Failed: ${label}`);
 
-  const startMut = action(() => driverApi.startAssignment(current?._id || ''), 'Trip started');
-  const arriveMut = action(() => driverApi.arriveAtPickup(current?._id || ''), 'Arrived at pickup');
-  const completeMut = action(() => driverApi.completeAssignment(current?._id || ''), 'Trip completed');
+  const startMut = useMutation({
+    mutationFn: () => driverApi.startAssignment(currentId),
+    onSuccess: onSuccess('Trip started'),
+    onError: onError('start trip'),
+  });
+  const arriveMut = useMutation({
+    mutationFn: () => driverApi.arriveAtPickup(currentId),
+    onSuccess: onSuccess('Arrived at pickup'),
+    onError: onError('arrive'),
+  });
+  const completeMut = useMutation({
+    mutationFn: () => driverApi.completeAssignment(currentId),
+    onSuccess: onSuccess('Trip completed'),
+    onError: onError('complete trip'),
+  });
 
   if (isLoading) return <Card className="p-8 text-center text-sm text-muted-foreground">Loading current trip…</Card>;
 
