@@ -13,6 +13,12 @@ import {
   Shield,
   ChevronRight,
   ShoppingCart,
+  ClipboardCheck,
+  History,
+  UserCircle,
+  FolderArchive,
+  Megaphone,
+  Navigation,
 } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
 import { NavLink } from '@/components/NavLink';
@@ -40,25 +46,40 @@ type SidebarItem = {
   icon: LucideIcon;
 };
 
+/**
+ * Role-aware navigation. Strict separation per role:
+ * - SHIPPER: no Contracts (removed). New: Live Tracking, Announcements.
+ * - VENDOR: no Fleet Vehicles. Split order flows (Contract / Marketplace). + Stats, Tracking.
+ * - DRIVER: full marketplace + tracking + inspection + history + profile + documents + current trip.
+ * - COMPANY_ADMIN: no Broker (removed). Vehicles, Drivers, Contracts (incoming), Orders.
+ * - PRIVATE_TRANSPORTER: simplified — own fleet, marketplace, tracking, current trip.
+ * - BROKER: console + marketplace.
+ * - ADMIN/SUPER_ADMIN/OPERATOR: oversight tools.
+ */
 const navConfig: Record<UserRole, { primary: SidebarItem[]; secondary: SidebarItem[] }> = {
   SHIPPER: {
     primary: [
       { title: 'Dashboard', url: '/dashboard', icon: LayoutDashboard },
       { title: 'My Orders', url: '/orders', icon: Package },
       { title: 'Marketplace', url: '/marketplace', icon: ShoppingCart },
+      { title: 'Live Tracking', url: '/tracking', icon: Navigation },
       { title: 'Payments', url: '/payments', icon: CreditCard },
     ],
     secondary: [
+      { title: 'Announcements', url: '/announcements', icon: Megaphone },
       { title: 'Analytics', url: '/analytics', icon: BarChart3 },
     ],
   },
   VENDOR: {
     primary: [
       { title: 'Dashboard', url: '/dashboard', icon: LayoutDashboard },
-      { title: 'Orders', url: '/orders', icon: Package },
-      { title: 'Contracts', url: '/contracts', icon: FileText },
+      { title: 'Order via Contract', url: '/orders/contract', icon: FileText },
+      { title: 'Order via Marketplace', url: '/orders/marketplace', icon: ShoppingCart },
+      { title: 'Live Tracking', url: '/tracking', icon: Navigation },
+      { title: 'Stats', url: '/stats', icon: BarChart3 },
     ],
     secondary: [
+      { title: 'Contracts', url: '/contracts', icon: FileText },
       { title: 'Payments', url: '/payments', icon: CreditCard },
     ],
   },
@@ -66,10 +87,16 @@ const navConfig: Record<UserRole, { primary: SidebarItem[]; secondary: SidebarIt
     primary: [
       { title: 'Dashboard', url: '/dashboard', icon: LayoutDashboard },
       { title: 'Marketplace', url: '/marketplace', icon: ShoppingCart },
-      { title: 'Tracking', url: '/tracking', icon: MapPin },
+      { title: 'Current Trip', url: '/current-trip', icon: Navigation },
+      { title: 'Live Tracking', url: '/tracking', icon: MapPin },
+    ],
+    secondary: [
+      { title: 'Inspection', url: '/inspection', icon: ClipboardCheck },
+      { title: 'Trip History', url: '/trip-history', icon: History },
+      { title: 'Documents', url: '/documents', icon: FolderArchive },
+      { title: 'Profile', url: '/profile', icon: UserCircle },
       { title: 'Payments', url: '/payments', icon: CreditCard },
     ],
-    secondary: [],
   },
   COMPANY_ADMIN: {
     primary: [
@@ -77,12 +104,11 @@ const navConfig: Record<UserRole, { primary: SidebarItem[]; secondary: SidebarIt
       { title: 'Company', url: '/company', icon: Building2 },
       { title: 'Vehicles', url: '/vehicles', icon: Truck },
       { title: 'Drivers', url: '/drivers', icon: Users },
-      { title: 'Contracts', url: '/contracts', icon: FileText },
+      { title: 'Orders', url: '/orders', icon: Package },
     ],
     secondary: [
-      { title: 'Orders', url: '/orders', icon: Package },
-      { title: 'Marketplace', url: '/marketplace', icon: ShoppingCart },
-      { title: 'Broker Ops', url: '/broker', icon: Shield },
+      { title: 'Contracts', url: '/contracts', icon: FileText },
+      { title: 'Live Tracking', url: '/tracking', icon: Navigation },
       { title: 'Analytics', url: '/analytics', icon: BarChart3 },
       { title: 'Payments', url: '/payments', icon: CreditCard },
     ],
@@ -91,11 +117,13 @@ const navConfig: Record<UserRole, { primary: SidebarItem[]; secondary: SidebarIt
     primary: [
       { title: 'Dashboard', url: '/dashboard', icon: LayoutDashboard },
       { title: 'Marketplace', url: '/marketplace', icon: ShoppingCart },
-      { title: 'Drivers', url: '/drivers', icon: Users },
-      { title: 'Tracking', url: '/tracking', icon: MapPin },
+      { title: 'My Vehicle', url: '/vehicles', icon: Truck },
+      { title: 'Current Trip', url: '/current-trip', icon: Navigation },
     ],
     secondary: [
-      { title: 'Orders', url: '/orders', icon: Package },
+      { title: 'Trip History', url: '/trip-history', icon: History },
+      { title: 'Documents', url: '/documents', icon: FolderArchive },
+      { title: 'Profile', url: '/profile', icon: UserCircle },
       { title: 'Payments', url: '/payments', icon: CreditCard },
     ],
   },
@@ -106,7 +134,7 @@ const navConfig: Record<UserRole, { primary: SidebarItem[]; secondary: SidebarIt
       { title: 'Marketplace', url: '/marketplace', icon: ShoppingCart },
     ],
     secondary: [
-      { title: 'Tracking', url: '/tracking', icon: MapPin },
+      { title: 'Live Tracking', url: '/tracking', icon: Navigation },
       { title: 'Analytics', url: '/analytics', icon: BarChart3 },
     ],
   },
@@ -136,7 +164,7 @@ const navConfig: Record<UserRole, { primary: SidebarItem[]; secondary: SidebarIt
     secondary: [
       { title: 'Orders', url: '/orders', icon: Package },
       { title: 'Marketplace', url: '/marketplace', icon: ShoppingCart },
-      { title: 'Broker Ops', url: '/broker', icon: Shield },
+      { title: 'Live Tracking', url: '/tracking', icon: Navigation },
       { title: 'Analytics', url: '/analytics', icon: BarChart3 },
       { title: 'Payments', url: '/payments', icon: CreditCard },
     ],

@@ -45,9 +45,11 @@ export default function SignupPage() {
   const { signup } = useAuth();
   const navigate = useNavigate();
 
-  const { register, handleSubmit, setValue, formState: { errors, isSubmitting } } = useForm<SignupForm>({
+  const { register, handleSubmit, setValue, watch, formState: { errors, isSubmitting } } = useForm<SignupForm>({
     resolver: zodResolver(signupSchema),
   });
+  const selectedRole = watch('role');
+  const isPrivate = selectedRole === 'PRIVATE_TRANSPORTER';
 
   const onSubmit = async (data: any) => {
     try {
@@ -171,6 +173,43 @@ export default function SignupPage() {
                 {errors.passwordConfirm && <p className="text-xs text-destructive mt-1">{errors.passwordConfirm.message}</p>}
               </motion.div>
             </div>
+
+            {isPrivate && (
+              <motion.div {...fadeUp(0.32)} className="rounded-lg border border-dashed border-primary/30 bg-primary/5 p-4 space-y-3">
+                <p className="text-xs font-semibold text-primary uppercase tracking-wider">Private Transporter Details</p>
+                <div className="grid grid-cols-2 gap-3">
+                  <div>
+                    <label className="text-xs font-medium text-foreground mb-1 block">License Number</label>
+                    <Input placeholder="ETH-DL-12345" className="h-10" />
+                  </div>
+                  <div>
+                    <label className="text-xs font-medium text-foreground mb-1 block">License Expiry</label>
+                    <Input type="date" className="h-10" />
+                  </div>
+                </div>
+                <div className="grid grid-cols-2 gap-3">
+                  <div>
+                    <label className="text-xs font-medium text-foreground mb-1 block">Vehicle Plate</label>
+                    <Input placeholder="AA-12345" className="h-10" />
+                  </div>
+                  <div>
+                    <label className="text-xs font-medium text-foreground mb-1 block">Vehicle Type</label>
+                    <Input placeholder="Truck / Pickup / Van" className="h-10" />
+                  </div>
+                </div>
+                <div className="grid grid-cols-2 gap-3">
+                  <div>
+                    <label className="text-xs font-medium text-foreground mb-1 block">Capacity (kg)</label>
+                    <Input type="number" placeholder="3000" className="h-10" />
+                  </div>
+                  <div>
+                    <label className="text-xs font-medium text-foreground mb-1 block">Year</label>
+                    <Input type="number" placeholder="2022" className="h-10" />
+                  </div>
+                </div>
+                <p className="text-[11px] text-muted-foreground">You'll be onboarded under our umbrella company. No company creation required.</p>
+              </motion.div>
+            )}
 
             <motion.div {...fadeUp(0.35)}>
               <FileUpload onFileSelect={setPhoto} label="Profile Photo (optional)" />
