@@ -22,36 +22,39 @@ import VehiclesPage from "@/features/vehicles/VehiclesPage";
 import DriversPage from "@/features/drivers/DriversPage";
 import SettingsPage from "@/features/settings/SettingsPage";
 
-// Placeholder pages
+// Feature pages
 import MarketplacePage from "@/features/marketplace/MarketplacePage";
 import ContractsPage from "@/features/contracts/ContractsPage";
 import TrackingPage from "@/features/tracking/TrackingPage";
+import LiveTrackingPage from "@/features/tracking/LiveTrackingPage";
 import PaymentsPage from "@/features/payments/PaymentsPage";
 import AnalyticsPage from "@/features/analytics/AnalyticsPage";
 import BrokerPage from "@/features/broker/BrokerPage";
+import OrdersPage from "@/features/orders/OrdersPage";
+import ShipperOrdersPage from "@/features/orders/ShipperOrdersPage";
+import VendorStatsPage from "@/features/vendor/VendorStatsPage";
+import AnnouncementsPage from "@/features/announcements/AnnouncementsPage";
+import DriverInspectionPage from "@/features/driver/DriverInspectionPage";
+import DriverTripHistoryPage from "@/features/driver/DriverTripHistoryPage";
+import DriverProfilePage from "@/features/driver/DriverProfilePage";
+import DriverDocumentsPage from "@/features/driver/DriverDocumentsPage";
+import CurrentTripPage from "@/features/driver/CurrentTripPage";
 
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient({
-  defaultOptions: {
-    queries: {
-      retry: 1,
-      staleTime: 30000,
-    },
-  },
+  defaultOptions: { queries: { retry: 1, staleTime: 30000 } },
 });
 
-const LAYOUT_ALLOWED_ROLES: UserRole[] = [
-  'SHIPPER',
-  'VENDOR',
-  'DRIVER',
-  'COMPANY_ADMIN',
-  'PRIVATE_TRANSPORTER',
-  'BROKER',
-  'SUPER_ADMIN',
-  'OPERATOR',
-  'ADMIN',
-];
+const ALL_ROLES: UserRole[] = ['SHIPPER', 'VENDOR', 'DRIVER', 'COMPANY_ADMIN', 'PRIVATE_TRANSPORTER', 'BROKER', 'SUPER_ADMIN', 'OPERATOR', 'ADMIN'];
+const DRIVER_LIKE: UserRole[] = ['DRIVER', 'PRIVATE_TRANSPORTER'];
+const SHIPPER_ONLY: UserRole[] = ['SHIPPER'];
+const VENDOR_ONLY: UserRole[] = ['VENDOR'];
+const FLEET_ADMINS: UserRole[] = ['COMPANY_ADMIN', 'OPERATOR', 'SUPER_ADMIN', 'ADMIN', 'PRIVATE_TRANSPORTER'];
+
+function Roled({ roles, element }: { roles: UserRole[]; element: React.ReactNode }) {
+  return <ProtectedRoute allowedRoles={roles}>{element}</ProtectedRoute>;
+}
 
 const App = () => (
   <QueryClientProvider client={queryClient}>
@@ -69,28 +72,46 @@ const App = () => (
             <Route path="/processing" element={<ProcessingPage />} />
 
             {/* Protected routes */}
-            <Route
-              element={
-                <ProtectedRoute allowedRoles={LAYOUT_ALLOWED_ROLES}>
-                  <AppLayout />
-                </ProtectedRoute>
-              }
-            >
+            <Route element={<ProtectedRoute allowedRoles={ALL_ROLES}><AppLayout /></ProtectedRoute>}>
               <Route path="/dashboard" element={<DashboardPage />} />
-              <Route path="/company" element={<CompanyPage />} />
-              <Route path="/vehicles" element={<VehiclesPage />} />
-              <Route path="/drivers" element={<DriversPage />} />
+              <Route path="/company" element={<Roled roles={['COMPANY_ADMIN','OPERATOR','SUPER_ADMIN','ADMIN']} element={<CompanyPage />} />} />
+              <Route path="/vehicles" element={<Roled roles={FLEET_ADMINS} element={<VehiclesPage />} />} />
+              <Route path="/drivers" element={<Roled roles={FLEET_ADMINS} element={<DriversPage />} />} />
               <Route path="/settings" element={<SettingsPage />} />
-              <Route path="/orders" element={<MarketplacePage />} />
+
+              {/* Orders: Shipper sees its own table, others see generic OrdersPage */}
+              <Route path="/orders" element={
+                <Roled roles={['SHIPPER','COMPANY_ADMIN','OPERATOR','SUPER_ADMIN','ADMIN','PRIVATE_TRANSPORTER','VENDOR']}
+                  element={<ShipperOrdersOrGeneric />} />
+              } />
+              {/* Vendor split flows */}
+              <Route path="/orders/contract" element={<Roled roles={VENDOR_ONLY} element={<OrdersPage />} />} />
+              <Route path="/orders/marketplace" element={<Roled roles={VENDOR_ONLY} element={<MarketplacePage />} />} />
+
               <Route path="/marketplace" element={<MarketplacePage />} />
-              <Route path="/contracts" element={<ContractsPage />} />
-              <Route path="/tracking" element={<TrackingPage />} />
+              {/* Contracts: NOT for SHIPPER */}
+              <Route path="/contracts" element={<Roled roles={['VENDOR','COMPANY_ADMIN','OPERATOR','SUPER_ADMIN','ADMIN']} element={<ContractsPage />} />} />
+              <Route path="/tracking" element={<LiveTrackingPage />} />
+              <Route path="/legacy-tracking" element={<TrackingPage />} />
               <Route path="/payments" element={<PaymentsPage />} />
               <Route path="/analytics" element={<AnalyticsPage />} />
-              <Route path="/broker" element={<BrokerPage />} />
+              {/* Broker: NOT for COMPANY_ADMIN */}
+              <Route path="/broker" element={<Roled roles={['BROKER','OPERATOR','SUPER_ADMIN','ADMIN']} element={<BrokerPage />} />} />
+
+              {/* Vendor */}
+              <Route path="/stats" element={<Roled roles={VENDOR_ONLY} element={<VendorStatsPage />} />} />
+
+              {/* Announcements */}
+              <Route path="/announcements" element={<Roled roles={SHIPPER_ONLY} element={<AnnouncementsPage />} />} />
+
+              {/* Driver / Private Transporter pages */}
+              <Route path="/inspection" element={<Roled roles={DRIVER_LIKE} element={<DriverInspectionPage />} />} />
+              <Route path="/trip-history" element={<Roled roles={DRIVER_LIKE} element={<DriverTripHistoryPage />} />} />
+              <Route path="/profile" element={<Roled roles={DRIVER_LIKE} element={<DriverProfilePage />} />} />
+              <Route path="/documents" element={<Roled roles={DRIVER_LIKE} element={<DriverDocumentsPage />} />} />
+              <Route path="/current-trip" element={<Roled roles={DRIVER_LIKE} element={<CurrentTripPage />} />} />
             </Route>
 
-            {/* Redirects */}
             <Route path="/" element={<Navigate to="/dashboard" replace />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
@@ -99,5 +120,15 @@ const App = () => (
     </TooltipProvider>
   </QueryClientProvider>
 );
+
+// Wrapper that picks ShipperOrdersPage for SHIPPER, generic OrdersPage otherwise
+function ShipperOrdersOrGeneric() {
+  // Lazy require to avoid import cycle
+  // eslint-disable-next-line @typescript-eslint/no-var-requires
+  const { useAuth } = require('@/context/AuthContext');
+  const { userRole } = useAuth();
+  if (userRole === 'SHIPPER') return <ShipperOrdersPage />;
+  return <OrdersPage />;
+}
 
 export default App;
