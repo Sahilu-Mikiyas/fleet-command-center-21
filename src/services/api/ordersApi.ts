@@ -46,6 +46,12 @@ export const ordersApi = {
     });
   },
 
+  async getOrderPublicStatus(orderId: string) {
+    return apiRequest<ApiResponse<{ order: Order }> | { order: Order }>(`/orders/${orderId}`, {
+      auth: false,
+    });
+  },
+
   // Order assignment (operator/admin)
   async assignOrder(orderId: string, driverId: string, vehicleId: string) {
     return apiRequest<ApiResponse<any>>(`/orders/${orderId}/assign`, {
