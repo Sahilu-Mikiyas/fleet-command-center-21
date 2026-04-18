@@ -6,6 +6,7 @@ export interface PaymentInitPayload {
   amount: number;
   currency?: string;
   email?: string;
+  phone_number?: string;
   first_name?: string;
   last_name?: string;
   description?: string;
@@ -18,6 +19,14 @@ export const paymentsApi = {
     return apiRequest<ApiResponse<{ checkout_url?: string; tx_ref?: string }>>('/payment/initialize', {
       method: 'POST',
       body: payload,
+    });
+  },
+
+  async initializePublicPayment(payload: PaymentInitPayload) {
+    return apiRequest<ApiResponse<{ checkout_url?: string; tx_ref?: string }>>('/payment/initialize', {
+      method: 'POST',
+      body: payload,
+      auth: false,
     });
   },
 
