@@ -17,35 +17,9 @@ const sections = [
   'Payment and transaction tracking',
 ];
 
-const stats = [
-  { label: 'Orders Coordinated', value: '12K+' },
-  { label: 'Active Fleet Units', value: '1.8K+' },
-  { label: 'On-time Delivery', value: '98.2%' },
-];
-
 export default function LandingPage() {
   return (
     <div className="min-h-screen bg-background text-foreground">
-      {/* Top nav */}
-      <motion.header
-        initial={{ opacity: 0, y: -8 }}
-        animate={{ opacity: 1, y: 0 }}
-        className="sticky top-0 z-30 border-b border-border/60 bg-background/80 backdrop-blur-xl"
-      >
-        <nav className="mx-auto flex h-16 max-w-7xl items-center justify-between px-6">
-          <Link to="/" className="text-lg font-bold font-display">FleetCommand</Link>
-          <div className="hidden items-center gap-5 text-sm text-muted-foreground md:flex">
-            <a href="#features" className="hover:text-foreground transition-colors">Features</a>
-            <a href="#about" className="hover:text-foreground transition-colors">About</a>
-            <a href="#pay" className="hover:text-foreground transition-colors">Pay Order</a>
-          </div>
-          <div className="flex items-center gap-2">
-            <Button asChild variant="ghost" size="sm"><Link to="/login">Login</Link></Button>
-            <Button asChild size="sm" className="gradient-primary text-primary-foreground"><Link to="/pay-order">Pay</Link></Button>
-          </div>
-        </nav>
-      </motion.header>
-
       {/* Hero */}
       <section className="relative overflow-hidden">
         <div
@@ -89,7 +63,7 @@ export default function LandingPage() {
       </section>
 
       {/* Highlights */}
-      <section id="features" className="mx-auto max-w-7xl px-6 py-16">
+      <section className="mx-auto max-w-7xl px-6 py-16">
         <motion.div
           initial={{ opacity: 0, y: 12 }}
           whileInView={{ opacity: 1, y: 0 }}
@@ -112,29 +86,12 @@ export default function LandingPage() {
         </motion.div>
       </section>
 
-      {/* Stats */}
-      <section className="mx-auto max-w-7xl px-6 pb-10">
-        <motion.div
-          initial={{ opacity: 0, y: 10 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          className="grid gap-4 rounded-2xl border border-border bg-card p-5 shadow-card sm:grid-cols-3"
-        >
-          {stats.map((s, i) => (
-            <motion.div key={s.label} initial={{ opacity: 0, y: 8 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: i * 0.06 }} className="text-center">
-              <p className="text-2xl font-bold font-display text-primary">{s.value}</p>
-              <p className="text-xs uppercase tracking-wider text-muted-foreground">{s.label}</p>
-            </motion.div>
-          ))}
-        </motion.div>
-      </section>
-
       {/* Visual split section */}
-      <section id="about" className="mx-auto grid max-w-7xl items-center gap-8 px-6 pb-16 lg:grid-cols-2">
+      <section className="mx-auto grid max-w-7xl items-center gap-8 px-6 pb-16 lg:grid-cols-2">
         <motion.div initial={{ opacity: 0, x: -16 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }}>
-          <h2 className="text-3xl font-bold font-display">About Us</h2>
+          <h2 className="text-3xl font-bold font-display">Everything You Need on One Logistics Homepage</h2>
           <p className="mt-3 text-muted-foreground">
-            We build logistics software that blends operational depth with an elegant user experience — so teams can move freight with confidence, speed, and clarity.
+            Designed for fast operations: instant context, role-driven workflows, clean transitions, and direct access to key actions.
           </p>
           <div className="mt-6 space-y-3">
             {sections.map((item) => (
@@ -163,7 +120,7 @@ export default function LandingPage() {
       </section>
 
       {/* CTA */}
-      <section id="pay" className="border-t border-border bg-muted/30">
+      <section className="border-t border-border bg-muted/30">
         <div className="mx-auto flex max-w-7xl flex-col items-start justify-between gap-4 px-6 py-10 md:flex-row md:items-center">
           <div>
             <h3 className="text-2xl font-bold font-display">Ready to move?</h3>
